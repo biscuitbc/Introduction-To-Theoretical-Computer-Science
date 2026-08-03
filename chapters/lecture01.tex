@@ -3,8 +3,8 @@
 
 理论计算机科学经常把两个层面分开讨论：函数（function）描述要计算
 \emph{什么}，是问题的规格；程序（program）描述\emph{如何}计算，是规格
-的一种实现。本讲先用二进制串形式化“描述”，再比较函数与程序在数量上的
-差异。
+的一种实现。从函数到程序，就是把抽象的东西具体化。本讲先用二进制串
+形式化“描述”，再比较函数与程序在数量上的差异。
 
 全文约定
 \[
@@ -38,10 +38,10 @@
   \[
     E:A\longrightarrow\Sigma^*.
   \]
-  单射条件保证每个码字至多对应 $A$ 中的一个对象，因而解码时不会混淆。
+  这里，单射是指：对任意 $x,y\in A$，若 $E(x)=E(y)$，则 $x=y$。
 \end{definition}
 
-\begin{example}[直接串联可能产生歧义]
+\begin{example}
   \label{ex:pair-encoding}
   令 $b(n)$ 为自然数 $n$ 的标准二进制表示，并尝试用
   \[
@@ -51,7 +51,8 @@
   \[
     P(1,6)=1\,110=1110=11\,10=P(3,2).
   \]
-  问题在于直接串联后无法确定两个分量的分界位置。
+  问题在于直接串联后无法确定两个分量的分界位置。因此我们要考虑一种更
+  优秀的编码，来避免这个问题。
 \end{example}
 
 \begin{definition}[无前缀编码]
@@ -59,9 +60,6 @@
   编码 $E:A\to\Sigma^+$ 称为\emph{无前缀的}（prefix-free），如果对任意
   不同的 $x,y\in A$，$E(x)$ 都不是 $E(y)$ 的前缀。
 \end{definition}
-
-这里要求码字非空不是多余的：如果唯一的码字是 $\eps$，那么串联任意多个
-码字都仍然得到 $\eps$，不可能唯一解码。
 
 记 $A^*$ 为由 $A$ 中元素组成的所有有限序列的集合，其空序列仍记为
 $\eps$。对映射 $E:A\to\Sigma^*$，定义其逐项串联扩张
@@ -74,12 +72,14 @@ $\eps$。对映射 $E:A\to\Sigma^*$，定义其逐项串联扩张
   \end{cases}
 \end{equation}
 
-\begin{theorem}[无前缀编码的唯一可解码性]
-  \label{thm:prefix-extension-injective}
+这个定义很自然，我们要说明这个自然定义确实是个单射。
+
+\begin{lemma}
+  \label{lem:prefix-extension-injective}
   若 $E:A\to\Sigma^+$ 是无前缀编码，则由
   \cref{eq:concatenation-extension} 定义的
   $\overline E:A^*\to\Sigma^*$ 是单射。
-\end{theorem}
+\end{lemma}
 
 \begin{proof}
   假设
@@ -121,9 +121,13 @@ $\eps$。对映射 $E:A\to\Sigma^*$，定义其逐项串联扩张
   得 $a=b$。所以不存在一个码字是另一个不同码字的前缀。
 \end{proof}
 
-\begin{remark}
-  原稿进一步询问能否把长度开销改进到
-  $\card{E(a)}+O(\log \card{E(a)})$。答案是肯定的。令
+\begin{question}
+  能否把长度开销改进到
+  $\card{E(a)}+O(\log \card{E(a)})$？
+\end{question}
+
+\begin{proof}[解答]
+  可以。令
   $n=\card{E(a)}$，先用自定界格式
   \[
     1^{\ell}0\,\operatorname{bin}(n+1),
@@ -135,7 +139,7 @@ $\eps$。对映射 $E:A\to\Sigma^*$，定义其逐项串联扩张
     n+2\lfloor\log_2(n+1)\rfloor+3=n+O(\log(n+1)),
   \]
   且构造仍然无前缀。
-\end{remark}
+\end{proof}
 
 \begin{corollary}
   \label{cor:sequence-encoding}
@@ -145,7 +149,7 @@ $\eps$。对映射 $E:A\to\Sigma^*$，定义其逐项串联扩张
 
 \begin{proof}
   先用\cref{thm:prefix-free-construction}把 $E$ 无前缀化，再用
-  \cref{thm:prefix-extension-injective}逐项串联即可。
+  \cref{lem:prefix-extension-injective}逐项串联即可。
 \end{proof}
 
 \section{可数集合}
@@ -196,6 +200,8 @@ $\eps$。对映射 $E:A\to\Sigma^*$，定义其逐项串联扩张
 
 \section{问题比程序多}
 
+因为我们已经有编码了，所以我们可以把问题公理化了。
+
 \begin{definition}[问题]
   \label{def:problem}
   在本讲义中，一个（计算）\emph{问题}是函数
@@ -226,16 +232,4 @@ $\eps$。对映射 $E:A\to\Sigma^*$，定义其逐项串联扩张
   \]
   对每个 $i\in\Nat$ 都有 $g(s_i)\neq f_i(s_i)$，所以 $g\neq f_i$。
   这与该序列穷尽所有问题的假设矛盾。因此 $\mathcal{P}$ 不可数。
-\end{proof}
-
-\begin{corollary}
-  \label{cor:uncomputable-problems}
-  如果程序集合存在一个有限二进制编码，并且每个程序至多实现一个问题，那么
-  存在没有任何程序能够实现的问题。
-\end{corollary}
-
-\begin{proof}
-  由\cref{thm:encodable-iff-countable}，所有程序构成至多可数集，因而程序
-  能实现的问题也至多可数；但\cref{thm:problems-uncountable}说明全部问题
-  的集合不可数。
 \end{proof}
