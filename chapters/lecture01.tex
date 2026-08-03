@@ -27,15 +27,9 @@
   \]
   对 $x\in\Sigma^n$，记其长度为 $\card{x}=n$。
 
-  串联记为 $xy$。对 $x,y\in\Sigma^*$，定义
-  \[
-    x\preceq y
-    \iff \exists z\in\Sigma^*,\ y=xz,
-    \qquad
-    x\prec y
-    \iff x\preceq y\ \text{且}\ x\neq y.
-  \]
-  分别称 $x$ 是 $y$ 的\emph{前缀}和\emph{真前缀}。
+  对 $x,y\in\Sigma^*$，把二者的串联记为 $xy$。如果存在
+  $z\in\Sigma^*$ 使得 $y=xz$，则称 $x$ 是 $y$ 的\emph{前缀}。如果还能
+  取到 $z\neq\eps$，则称 $x$ 是 $y$ 的\emph{真前缀}。
 \end{definition}
 
 \begin{definition}[编码]
@@ -63,11 +57,8 @@
 
 \begin{definition}[无前缀编码]
   \label{def:prefix-free}
-  编码 $E:A\to\Sigma^+$ 称为\emph{无前缀的}（prefix-free），如果
-  \[
-    \forall x,y\in A,\quad x\neq y
-    \implies E(x)\npreceq E(y).
-  \]
+  编码 $E:A\to\Sigma^+$ 称为\emph{无前缀的}（prefix-free），如果对任意
+  不同的 $x,y\in A$，码字 $E(x)$ 都不是 $E(y)$ 的前缀。
 \end{definition}
 
 记 $A^*$ 为由 $A$ 中元素组成的所有有限序列的集合，其空序列仍记为
@@ -97,12 +88,7 @@ $\eps$。对映射 $E:A\to\Sigma^*$，定义其逐项串联扩张
     =\overline E(b_1,\ldots,b_q).
   \]
   码字非空，所以 $p=0\iff q=0$。若 $p,q>0$，则
-  \[
-    E(a_1)\preceq E(b_1)
-    \quad\text{或}\quad
-    E(b_1)\preceq E(a_1).
-  \]
-  因此
+  $E(a_1)$ 与 $E(b_1)$ 中较短的码字一定是较长码字的前缀。由无前缀性可知
   \[
     E(a_1)=E(b_1)
     \implies a_1=b_1.
@@ -131,8 +117,9 @@ $\eps$。对映射 $E:A\to\Sigma^*$，定义其逐项串联扩张
     \card{E_{\mathrm{pf}}(a)}=2\card{E(a)}+2.
   \]
   按两个比特分组时，正文块属于 $\{00,11\}$，终止块为 $01$。若
-  $E_{\mathrm{pf}}(a)\preceq E_{\mathrm{pf}}(b)$，则短串的终止块必须与
-  长串的某一块对齐。正文中没有 $01$，故它只能与长串的终止块对齐。于是
+  $E_{\mathrm{pf}}(a)$ 是 $E_{\mathrm{pf}}(b)$ 的前缀，则短串的终止块
+  必须与长串的某一块对齐。正文中没有 $01$，故它只能与长串的终止块
+  对齐。于是
   \[
     E_{\mathrm{pf}}(a)=E_{\mathrm{pf}}(b)
     \implies E(a)=E(b)
@@ -190,14 +177,9 @@ $\eps$。对映射 $E:A\to\Sigma^*$，定义其逐项串联扩张
 
 \begin{definition}[至多可数]
   \label{def:countable}
-  集合 $A$ \emph{至多可数}，是指
-  \[
-    \exists\text{ 单射 }f:A\hookrightarrow\Nat.
-  \]
-  等价地，$A$ 有限或 $A\cong\Nat$。当 $A\neq\varnothing$ 时，还等价于
-  \[
-    \exists\text{ 满射 }g:\Nat\twoheadrightarrow A.
-  \]
+  如果存在单射 $f:A\to\Nat$，则称集合 $A$ 是\emph{至多可数的}。
+  换言之，$A$ 或者是有限集，或者可以与自然数集 $\Nat$ 建立双射。当
+  $A\neq\varnothing$ 时，这也等价于存在满射 $g:\Nat\to A$。
 \end{definition}
 
 \begin{remark}
@@ -234,14 +216,15 @@ $\eps$。对映射 $E:A\to\Sigma^*$，定义其逐项串联扩张
   由\cref{lem:binary-strings-countable}，存在双射
   $\nu:\Sigma^*\to\Nat$。
 
-  若 $E:A\hookrightarrow\Sigma^*$，则
+  若 $E:A\to\Sigma^*$ 是单射，则
   \[
-    \nu\circ E:A\hookrightarrow\Nat.
+    \nu\circ E:A\to\Nat
   \]
-  反之，若 $f:A\hookrightarrow\Nat$，令 $c(n)=1^n0$，则
+  也是单射。反之，若 $f:A\to\Nat$ 是单射，令 $c(n)=1^n0$，则
   \[
-    c\circ f:A\hookrightarrow\Sigma^*.
+    c\circ f:A\to\Sigma^*
   \]
+  是一个编码。
 \end{proof}
 
 \section{问题比程序多}
