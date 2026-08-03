@@ -19,17 +19,23 @@
   \[
     \Sigma^n=\{(a_1,\ldots,a_n):a_i\in\Sigma\}.
   \]
-  特别地，$\Sigma^0=\{\eps\}$，其中 $\eps$ 表示空串。所有有限二进制串的
-  集合记为
+  特别地，$\Sigma^0=\{\eps\}$，其中 $\eps$ 表示空串。记
   \[
     \Sigma^*=\bigcup_{n\geq 0}\Sigma^n,
+    \qquad
+    \Sigma^+=\Sigma^*\setminus\{\eps\}.
   \]
-  非空二进制串的集合记为 $\Sigma^+=\Sigma^*\setminus\{\eps\}$。若
-  $x\in\Sigma^n$，则称 $x$ 的长度为 $\card{x}=n$。
+  对 $x\in\Sigma^n$，记其长度为 $\card{x}=n$。
 
-  对 $x,y\in\Sigma^*$，把二者的串联记为 $xy$。若存在 $z\in\Sigma^*$
-  使 $y=xz$，则称 $x$ 是 $y$ 的\emph{前缀}；若还能取到
-  $z\neq\eps$，则称 $x$ 是 $y$ 的\emph{真前缀}。
+  串联记为 $xy$。对 $x,y\in\Sigma^*$，定义
+  \[
+    x\preceq y
+    \iff \exists z\in\Sigma^*,\ y=xz,
+    \qquad
+    x\prec y
+    \iff x\preceq y\ \text{且}\ x\neq y.
+  \]
+  分别称 $x$ 是 $y$ 的\emph{前缀}和\emph{真前缀}。
 \end{definition}
 
 \begin{definition}[编码]
@@ -57,8 +63,11 @@
 
 \begin{definition}[无前缀编码]
   \label{def:prefix-free}
-  编码 $E:A\to\Sigma^+$ 称为\emph{无前缀的}（prefix-free），如果对任意
-  不同的 $x,y\in A$，$E(x)$ 都不是 $E(y)$ 的前缀。
+  编码 $E:A\to\Sigma^+$ 称为\emph{无前缀的}（prefix-free），如果
+  \[
+    \forall x,y\in A,\quad x\neq y
+    \implies E(x)\npreceq E(y).
+  \]
 \end{definition}
 
 记 $A^*$ 为由 $A$ 中元素组成的所有有限序列的集合，其空序列仍记为
@@ -82,18 +91,27 @@ $\eps$。对映射 $E:A\to\Sigma^*$，定义其逐项串联扩张
 \end{lemma}
 
 \begin{proof}
-  假设
+  假设两组序列的编码相同：
   \[
     \overline E(a_1,\ldots,a_p)
     =\overline E(b_1,\ldots,b_q).
   \]
-  因为每个码字非空，等式一侧为空串当且仅当对应序列为空；故只需考虑
-  $p,q>0$ 的情形。两个相等的串分别以 $E(a_1)$ 和 $E(b_1)$ 开头，因此
-  $E(a_1)$ 与 $E(b_1)$ 中较短者必为较长者的前缀。由无前缀性可知
-  $E(a_1)=E(b_1)$，再由 $E$ 的单射性得到 $a_1=b_1$。
-
-  从等式两侧消去相同的首个码字并重复上述论证，最终得到 $p=q$ 且
-  $a_i=b_i$（$1\leq i\leq p$）。因此 $\overline E$ 是单射。
+  码字非空，所以 $p=0\iff q=0$。若 $p,q>0$，则
+  \[
+    E(a_1)\preceq E(b_1)
+    \quad\text{或}\quad
+    E(b_1)\preceq E(a_1).
+  \]
+  因此
+  \[
+    E(a_1)=E(b_1)
+    \implies a_1=b_1.
+  \]
+  两边消去首个码字并归纳，得到
+  \[
+    p=q,\qquad a_i=b_i\quad(1\leq i\leq p).
+  \]
+  故 $\overline E$ 是单射。
 \end{proof}
 
 \begin{theorem}[编码的无前缀化]
@@ -106,19 +124,21 @@ $\eps$。对映射 $E:A\to\Sigma^*$，定义其逐项串联扩张
 \end{theorem}
 
 \begin{proof}
-  先定义 $h(0)=00$、$h(1)=11$，并令 $h$ 在串上逐位作用。取
+  定义 $h(0)=00$、$h(1)=11$，并令 $h$ 逐位作用于二进制串。取
   \[
-    E_{\mathrm{pf}}(a)=h(E(a))01.
+    E_{\mathrm{pf}}(a)=h(E(a))01,
+    \qquad
+    \card{E_{\mathrm{pf}}(a)}=2\card{E(a)}+2.
   \]
-  其长度显然为 $2\card{E(a)}+2$。
-
-  把 $E_{\mathrm{pf}}(a)$ 从左到右按两个比特一组切分：最后一组是
-  $01$，此前每一组只能是 $00$ 或 $11$。假设
-  $E_{\mathrm{pf}}(a)$ 是 $E_{\mathrm{pf}}(b)$ 的前缀。由于两个串的长度
-  都是偶数，短串结尾的 $01$ 与长串中的某个完整二比特组对齐；它不可能
-  等于长串正文中的 $00$ 或 $11$，所以只能与长串末尾的 $01$ 对齐。
-  因而两个码字等长且相等。逐组解码可得 $E(a)=E(b)$，再由 $E$ 的单射性
-  得 $a=b$。所以不存在一个码字是另一个不同码字的前缀。
+  按两个比特分组时，正文块属于 $\{00,11\}$，终止块为 $01$。若
+  $E_{\mathrm{pf}}(a)\preceq E_{\mathrm{pf}}(b)$，则短串的终止块必须与
+  长串的某一块对齐。正文中没有 $01$，故它只能与长串的终止块对齐。于是
+  \[
+    E_{\mathrm{pf}}(a)=E_{\mathrm{pf}}(b)
+    \implies E(a)=E(b)
+    \implies a=b.
+  \]
+  因此 $E_{\mathrm{pf}}$ 无前缀。
 \end{proof}
 
 \begin{question}
@@ -128,17 +148,31 @@ $\eps$。对映射 $E:A\to\Sigma^*$，定义其逐项串联扩张
 
 \begin{proof}[解答]
   可以。令
-  $n=\card{E(a)}$，先用自定界格式
   \[
-    1^{\ell}0\,\operatorname{bin}(n+1),
-    \qquad \ell=\card{\operatorname{bin}(n+1)},
+    n=\card{E(a)},\qquad
+    \ell=\card{\operatorname{bin}(n+1)},
   \]
-  写出长度，再接上 $E(a)$。解码器先由连续的 $1$ 得到 $\ell$，继而读出
-  $n+1$，最后恰好读取 $n$ 位正文。所得码长为
+  并定义
   \[
-    n+2\lfloor\log_2(n+1)\rfloor+3=n+O(\log(n+1)),
+    L(n)=1^{\ell}0\,\operatorname{bin}(n+1),
+    \qquad
+    E'(a)=L(n)E(a).
   \]
-  且构造仍然无前缀。
+  解码过程为
+  \[
+    1^{\ell}0
+    \longrightarrow \ell
+    \longrightarrow \operatorname{bin}(n+1)
+    \longrightarrow n
+    \longrightarrow E(a).
+  \]
+  其中最后一步恰好读取 $n$ 位。并且
+  \[
+    \card{E'(a)}
+    =n+2\lfloor\log_2(n+1)\rfloor+3
+    =n+O(\log(n+1)).
+  \]
+  $L(n)$ 自定界；当 $n$ 相同时，$E'(a)$ 等长。因此该构造无前缀。
 \end{proof}
 
 \begin{corollary}
@@ -156,15 +190,19 @@ $\eps$。对映射 $E:A\to\Sigma^*$，定义其逐项串联扩张
 
 \begin{definition}[至多可数]
   \label{def:countable}
-  若存在单射 $f:A\to\Nat$，则称集合 $A$ 是\emph{至多可数的}。这等价于
-  $A$ 有限或 $A$ 与 $\Nat$ 之间存在双射。若 $A\neq\varnothing$，它也
-  等价于存在满射 $g:\Nat\to A$。
+  集合 $A$ \emph{至多可数}，是指
+  \[
+    \exists\text{ 单射 }f:A\hookrightarrow\Nat.
+  \]
+  等价地，$A$ 有限或 $A\cong\Nat$。当 $A\neq\varnothing$ 时，还等价于
+  \[
+    \exists\text{ 满射 }g:\Nat\twoheadrightarrow A.
+  \]
 \end{definition}
 
 \begin{remark}
-  非空条件只影响最后一种表述：不存在从 $\Nat$ 到空集的函数，但空集显然
-  是至多可数的。部分文献把“可数”专指与 $\Nat$ 等势，把本文的“至多
-  可数”称作“可数”；使用时应先确认约定。
+  非空条件只用于满射表述，因为不存在 $\Nat\to\varnothing$。有些文献把
+  本文的“至多可数”简称为“可数”。
 \end{remark}
 
 \begin{lemma}
@@ -173,14 +211,18 @@ $\eps$。对映射 $E:A\to\Sigma^*$，定义其逐项串联扩张
 \end{lemma}
 
 \begin{proof}
-  对长度为 $n$ 的二进制串 $x$，令 $\operatorname{val}_2(x)$ 表示允许前导
-  零时的二进制数值，并定义
+  对 $x\in\Sigma^n$，令 $\operatorname{val}_2(x)$ 为其二进制数值（允许
+  前导零），并定义
   \[
     \nu(x)=2^n-1+\operatorname{val}_2(x).
   \]
-  长度为 $n$ 的串恰好映到区间
-  $\{2^n-1,\ldots,2^{n+1}-2\}$；这些区间互不相交且覆盖 $\Nat$。
-  因此 $\nu:\Sigma^*\to\Nat$ 是双射。
+  于是
+  \[
+    \nu(\Sigma^n)=\{2^n-1,\ldots,2^{n+1}-2\},
+    \qquad
+    \Nat=\bigsqcup_{n\geq0}\nu(\Sigma^n).
+  \]
+  故 $\nu:\Sigma^*\to\Nat$ 是双射。
 \end{proof}
 
 \begin{theorem}[可编码性与可数性]
@@ -189,13 +231,17 @@ $\eps$。对映射 $E:A\to\Sigma^*$，定义其逐项串联扩张
 \end{theorem}
 
 \begin{proof}
-  若 $E:A\to\Sigma^*$ 是编码，则把它与
-  \cref{lem:binary-strings-countable}中的单射
-  $\nu:\Sigma^*\to\Nat$ 复合，便得到 $A\to\Nat$ 的单射，所以 $A$
-  至多可数。
+  由\cref{lem:binary-strings-countable}，存在双射
+  $\nu:\Sigma^*\to\Nat$。
 
-  反之，若 $f:A\to\Nat$ 是单射，则把 $f$ 与映射
-  $n\mapsto 1^n0$ 复合，得到 $A\to\Sigma^*$ 的单射，也就是一个编码。
+  若 $E:A\hookrightarrow\Sigma^*$，则
+  \[
+    \nu\circ E:A\hookrightarrow\Nat.
+  \]
+  反之，若 $f:A\hookrightarrow\Nat$，令 $c(n)=1^n0$，则
+  \[
+    c\circ f:A\hookrightarrow\Sigma^*.
+  \]
 \end{proof}
 
 \section{问题比程序多}
@@ -220,9 +266,11 @@ $\eps$。对映射 $E:A\to\Sigma^*$，定义其逐项串联扩张
 \end{theorem}
 
 \begin{proof}[证明（Cantor 对角化）]
-  由\cref{lem:binary-strings-countable}，可将所有输入依次写成
-  $s_0,s_1,s_2,\ldots$。假设所有问题也能被序列
-  $f_0,f_1,f_2,\ldots$ 穷尽。构造新问题 $g:\Sigma^*\to\Sigma^*$：
+  由\cref{lem:binary-strings-countable}，可写
+  \[
+    \Sigma^*=\{s_0,s_1,s_2,\ldots\}.
+  \]
+  反设 $\mathcal P=\{f_0,f_1,f_2,\ldots\}$。定义
   \[
     g(s_i)=
     \begin{cases}
@@ -230,6 +278,10 @@ $\eps$。对映射 $E:A\to\Sigma^*$，定义其逐项串联扩张
       1, & f_i(s_i)=0.
     \end{cases}
   \]
-  对每个 $i\in\Nat$ 都有 $g(s_i)\neq f_i(s_i)$，所以 $g\neq f_i$。
-  这与该序列穷尽所有问题的假设矛盾。因此 $\mathcal{P}$ 不可数。
+  因而
+  \[
+    \forall i\in\Nat,\quad g(s_i)\neq f_i(s_i)
+    \implies g\neq f_i.
+  \]
+  于是 $g\in\mathcal P$ 却不在上述枚举中，矛盾。
 \end{proof}
