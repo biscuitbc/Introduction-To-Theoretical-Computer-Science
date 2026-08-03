@@ -1,0 +1,53 @@
+\usepackage[a4paper,margin=2.6cm,headheight=14pt]{geometry}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{amsthm}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{microtype}
+\usepackage[unicode,colorlinks=true,linkcolor=blue!55!black,urlcolor=blue!55!black]{hyperref}
+\usepackage[nameinlink,noabbrev]{cleveref}
+
+\ctexset{
+  chapter = {
+    name = {第,讲},
+    number = \arabic{chapter},
+    aftername = \quad
+  }
+}
+
+\setcounter{tocdepth}{2}
+\setcounter{secnumdepth}{2}
+
+% 定理类环境共享同一计数器，并按讲次重新编号。
+\theoremstyle{plain}
+\newtheorem{theorem}{定理}[chapter]
+\newtheorem{lemma}[theorem]{引理}
+\newtheorem{corollary}[theorem]{推论}
+\newtheorem{proposition}[theorem]{命题}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{定义}
+\newtheorem{example}[theorem]{例}
+
+\theoremstyle{remark}
+\newtheorem*{remark}{注}
+\newtheorem*{question}{思考}
+
+\crefname{theorem}{定理}{定理}
+\crefname{lemma}{引理}{引理}
+\crefname{corollary}{推论}{推论}
+\crefname{proposition}{命题}{命题}
+\crefname{definition}{定义}{定义}
+\crefname{example}{例}{例}
+\crefname{equation}{式}{式}
+\crefname{section}{节}{节}
+\crefformat{chapter}{第#2#1#3讲}
+
+\newcommand{\bits}{\{0,1\}}
+\newcommand{\bitsplus}{\bits^{+}}
+\newcommand{\bitsstar}{\bits^{*}}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\card}[1]{\lvert #1\rvert}
+\newcommand{\Nat}{\mathbb{N}}
+
+\renewcommand{\proofname}{证明}
