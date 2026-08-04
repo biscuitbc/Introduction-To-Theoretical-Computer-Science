@@ -382,3 +382,80 @@
   离开的路径。归纳可知，每次删除后，边标签仍描述原自动机中相应的全部路径。
   最后只剩新初态和新接受态，两者之间的边标签就是一个描述 $A$ 的正则表达式。
 \end{proof}
+
+\lecture
+\label{lec:pumping-lemma}
+
+\section{正则语言的泵引理}
+
+\begin{theorem}[正则语言的泵引理]
+  \label{thm:pumping-lemma-regular-languages}
+  若 $L$ 是正则语言，则存在整数 $p\geq1$，使得每个满足
+  $w\in L$ 且 $\card{w}\geq p$ 的字符串都可以写成 $w=xyz$，并满足：
+
+  \begin{enumerate}[label=\arabic*.]
+    \item 对每个整数 $i\geq0$，都有 $xy^iz\in L$；
+    \item $\card{y}>0$；
+    \item $\card{xy}\leq p$。
+  \end{enumerate}
+
+  这样的 $p$ 称为语言 $L$ 的一个泵长度（pumping length）。
+\end{theorem}
+
+\begin{proof}
+  设 DFA $M=(K,s,F,\delta)$ 判定 $L$，取 $p=\card{K}$。令
+  $w=w_0w_1\cdots w_{n-1}\in L$，其中 $n\geq p$；再令 $q_j$ 为 $M$
+  读完 $w$ 的前 $j$ 位后所处的状态。
+
+  序列 $q_0,q_1,\ldots,q_p$ 含有 $p+1$ 个状态。由抽屉原理
+  （pigeonhole principle），存在 $0\leq r<t\leq p$ 使得 $q_r=q_t$。
+  取
+
+  \[
+    x=w_0\cdots w_{r-1},\qquad
+    y=w_r\cdots w_{t-1},\qquad
+    z=w_t\cdots w_{n-1}.
+  \]
+
+  这里空的下标区间表示空串。
+
+  因为 $r<t\leq p$，所以 $\card{y}=t-r>0$ 且 $\card{xy}=t\leq p$。
+  又因为 $q_r=q_t$，从 $q_r$ 读入 $y$ 后仍回到 $q_r$。因此无论重复
+  $y$ 多少次，读入 $z$ 之前自动机都处于 $q_r$；于是对每个 $i\geq0$，
+  $M$ 都接受 $xy^iz$。
+\end{proof}
+
+\begin{example}
+  \label{ex:pumping-length-simple-language}
+  对正则语言
+
+  \[
+    L=01^*0,
+  \]
+
+  $p=3$ 是一个泵长度：若 $w=01^n0$ 且 $n\geq1$，取
+  $x=0$、$y=1$、$z=1^{n-1}0$ 即可。另一方面，$p=2$ 不是泵长度，
+  因为任取满足 $00=xyz$、$\card{y}>0$ 和 $\card{xy}\leq2$ 的分解，
+  令 $i=0$ 都会得到长度小于 $2$ 的串，因而不属于 $L$。
+\end{example}
+
+\begin{example}[$\{0^n1^n:n\geq0\}$ 不是正则语言]
+  \label{ex:zero-n-one-n-nonregular}
+  令
+
+  \[
+    A=\{0^n1^n:n\geq0\}.
+  \]
+
+  假设 $A$ 正则，并令 $p$ 为\cref{thm:pumping-lemma-regular-languages}
+  给出的泵长度。取 $w=0^p1^p\in A$。任取满足
+  $w=xyz$、$\card{y}>0$ 且 $\card{xy}\leq p$ 的分解；由于 $xy$
+  完全位于前 $p$ 个 $0$ 中，必有 $y=0^k$，其中 $1\leq k\leq p$。
+  令 $i=0$，则
+
+  \[
+    xy^0z=0^{p-k}1^p\notin A,
+  \]
+
+  与泵引理矛盾。因此 $A$ 不是正则语言。
+\end{example}
