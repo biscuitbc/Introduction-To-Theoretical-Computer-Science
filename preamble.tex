@@ -9,7 +9,7 @@
 
 \ctexset{
   chapter = {
-    name = {第,讲},
+    name = {第,章},
     number = \arabic{chapter},
     aftername = \quad
   }
@@ -18,7 +18,20 @@
 \setcounter{tocdepth}{2}
 \setcounter{secnumdepth}{2}
 
-% 各类环境使用独立计数器，并分别按讲次重新编号。
+% Lecture 与 chapter 相互独立；一个 chapter 可以包含多次 lecture。
+\newcounter{lecture}
+\newcommand{\lecture}{%
+  \refstepcounter{lecture}%
+  \par\bigskip
+  \phantomsection
+  \addcontentsline{toc}{section}{Lecture~\thelecture}%
+  \begin{center}
+    {\Large\bfseries Lecture~\thelecture}
+  \end{center}
+  \medskip
+}
+
+% 各类环境使用独立计数器，并分别按章重新编号。
 \theoremstyle{plain}
 \newtheorem{theorem}{定理}[chapter]
 \newtheorem{lemma}{引理}[chapter]
@@ -41,7 +54,8 @@
 \crefname{example}{例}{例}
 \crefname{equation}{式}{式}
 \crefname{section}{节}{节}
-\crefformat{chapter}{第#2#1#3讲}
+\crefname{lecture}{Lecture}{Lectures}
+\crefformat{chapter}{第#2#1#3章}
 
 \newcommand{\bits}{\{0,1\}}
 \newcommand{\bitsplus}{\bits^{+}}

@@ -1,13 +1,14 @@
 # 理论计算机科学导引
 
-这是手写讲义的 LaTeX 电子化版本。目前收录第 1 讲“引子”和第 2 讲“布尔电路”。
+这是手写讲义的 LaTeX 电子化版本。目前收录第 1、2 章以及 Lecture 1–3。
+Chapter 与 Lecture 分别编号；一个 Chapter 可以包含多次 Lecture。
 
 - [编译后的讲义](./lecture-notes.pdf)
-- [第 1 讲 LaTeX 源码](./chapters/lecture01.tex)
-- [第 1 讲手写原稿](./TCS%20lec1.pdf)
-- [第 2 讲 LaTeX 源码](./chapters/lecture02.tex)
-- [第 2 讲手写原稿](./TCS%20lec2.pdf)
-- [第 2 讲手写原稿（续）](./TCS%20lec3.pdf)
+- [第 1 章 LaTeX 源码](./chapters/chapter01.tex)
+- [Lecture 1 手写原稿](./TCS%20lec1.pdf)
+- [第 2 章 LaTeX 源码](./chapters/chapter02.tex)
+- [Lecture 2 手写原稿](./TCS%20lec2.pdf)
+- [Lecture 3 手写原稿](./TCS%20lec3.pdf)
 
 ## 编译
 
@@ -19,17 +20,20 @@ make
 
 生成的文件为 `lecture-notes.pdf`。运行 `make clean` 可清理构建产物。
 
-## 追加讲次
+## 追加内容
 
-1. 新建 `chapters/lecture02.tex`，以 `\chapter{标题}` 开头。
-2. 在 `main.tex` 中增加 `\include{chapters/lecture02}`。
-3. 在 `Makefile` 的依赖列表中加入新的章节文件。
+新增 Chapter 时，新建以 `\chapter{标题}` 开头的 `chapters/chapterXX.tex`，
+再更新 `main.tex` 与 `Makefile`。在现有 Chapter 中开始下一次 Lecture 时，
+只需在对应位置加入 `\lecture`，不新建 `\chapter`。
 
-定理、引理、推论、命题、定义与例分别使用独立计数器，并各自按讲次重置。例如第 2 讲中的第一条定理和第一条定义会分别编号为“定理 2.1”和“定义 2.1”。标签建议使用以下前缀：
+定理、引理、推论、命题、定义与例分别使用独立计数器，并各自按 Chapter
+重置。因此 Lecture 3 虽然开始了新的课次，但仍在第 2 章中，定理编号继续使用
+“定理 2.x”。标签建议使用以下前缀：
 
 | 对象 | 标签示例 |
 | --- | --- |
-| 讲次 | `chap:introduction` |
+| Chapter | `chap:introduction` |
+| Lecture | `lec:boolean-circuits-continuation` |
 | 定理 | `thm:prefix-free-construction` |
 | 引理 | `lem:binary-strings-countable` |
 | 推论 | `cor:sequence-encoding` |
