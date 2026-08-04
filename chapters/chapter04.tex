@@ -214,3 +214,171 @@
   \end{center}
 
 \end{example}
+
+\lecture
+\label{lec:nfa-and-regular-expressions}
+
+\subsection{NFA 与 DFA 的等价性}
+
+\begin{theorem}[NFA 与 DFA 等价]
+  \label{thm:nfa-dfa-equivalence}
+  对每个 NFA，都存在一个接受相同语言的 DFA；反之亦然。
+\end{theorem}
+
+\begin{proof}
+  DFA 是每一步都只有唯一后继状态、且没有 $\eps$-转移的特殊 NFA，故一个
+  DFA 可以直接看作 NFA。
+
+  反过来，设 NFA 为 $N=(K,s,F,\Delta)$。对 $S\subseteq K$，记
+  $E(S)$ 为从 $S$ 中某个状态出发，只经过有限次 $\eps$-转移所能到达的全部
+  状态。构造 DFA
+
+  \[
+    D=(\mathcal{P}(K),E(\{s\}),F_D,\delta_D),
+  \]
+
+  其中 $\mathcal{P}(K)$ 是 $K$ 的幂集（power set），并令
+
+  \begin{align*}
+    F_D
+      &=\{S\subseteq K:S\cap F\neq\varnothing\},\\
+    \delta_D(S,a)
+      &=E\bigl(\{q'\in K:\text{存在 }q\in S,
+        (q,a,q')\in\Delta\}\bigr).
+  \end{align*}
+
+  这个构造称为状态子集构造（subset construction）。对输入长度归纳可知，
+  $D$ 读完任意字符串 $x$ 后所处的状态，恰好是 $N$ 读完 $x$ 后所有可能状态
+  的集合。因此该集合与 $F$ 相交，当且仅当 $N$ 有一条接受 $x$ 的计算路径。
+  又因为 $K$ 有限，$\mathcal{P}(K)$ 也有限，所以 $D$ 确实是 DFA。
+\end{proof}
+
+\begin{corollary}
+  \label{cor:regular-iff-nfa}
+  一个语言是正则语言，当且仅当它能被某个 NFA 判定。
+\end{corollary}
+
+\begin{proof}
+  由\cref{def:regular-language}和\cref{thm:nfa-dfa-equivalence}立即得到。
+\end{proof}
+
+\subsection{拼接与 Kleene 星}
+
+\begin{proof}[\cref{thm:regular-closed-under-concatenation}的证明]
+  取分别判定 $A$ 和 $B$ 的 NFA
+
+  \[
+    N_A=(K_A,s_A,F_A,\Delta_A),
+    \qquad
+    N_B=(K_B,s_B,F_B,\Delta_B),
+  \]
+
+  不妨设 $K_A\cap K_B=\varnothing$。构造 NFA
+
+  \[
+    N=\bigl(K_A\cup K_B,s_A,F_B,\Delta\bigr),
+  \]
+
+  其中
+
+  \[
+    \Delta=\Delta_A\cup\Delta_B
+      \cup\{(q,\eps,s_B):q\in F_A\}.
+  \]
+
+  也就是说，从 $N_A$ 的每个接受状态增加一条到 $N_B$ 初始状态的
+  $\eps$-转移。于是 $N$ 接受 $w$，当且仅当可以把 $w$ 写成 $w=xy$，使得
+  $N_A$ 接受 $x$ 且 $N_B$ 接受 $y$。因此 $L(N)=AB$，再由
+  \cref{cor:regular-iff-nfa}可知 $AB$ 正则。
+\end{proof}
+
+对语言 $A$，递归定义 $A^0=\{\eps\}$、$A^{n+1}=A^nA$，并称
+
+\[
+  A^*=\bigcup_{n\geq0}A^n
+\]
+
+为 $A$ 的 Kleene 星（Kleene star）。
+
+\begin{theorem}[对 Kleene 星封闭]
+  \label{thm:regular-closed-under-star}
+  若 $A$ 是正则语言，则 $A^*$ 也是正则语言。
+\end{theorem}
+
+\begin{proof}
+  取判定 $A$ 的 NFA $N_A=(K,s,F,\Delta)$，并增加一个新状态 $s'$。令
+
+  \begin{align*}
+    K'&=K\cup\{s'\},\\
+    F'&=F\cup\{s'\},\\
+    \Delta'&=\Delta\cup\{(s',\eps,s)\}
+      \cup\{(q,\eps,s):q\in F\}.
+  \end{align*}
+
+  则 $N'=(K',s',F',\Delta')$ 可以先从 $s'$ 进入 $N_A$，并在每次到达
+  $N_A$ 的接受状态后重新开始下一轮。新初态 $s'$ 本身是接受状态，所以
+  $N'$ 也接受空串。因此 $L(N')=A^*$，由\cref{cor:regular-iff-nfa}可知
+  $A^*$ 正则。
+\end{proof}
+
+\section{正则表达式}
+
+\begin{definition}[正则表达式]
+  \label{def:regular-expression}
+  二进制字母表上的正则表达式（regular expression）按下面的规则递归定义：
+
+  \begin{enumerate}[label=\arabic*.]
+    \item $\varnothing$、$0$ 和 $1$ 是正则表达式，它们分别描述语言
+      $\varnothing$、$\{0\}$ 和 $\{1\}$；
+    \item 如果 $R_1,R_2$ 是正则表达式，那么 $R_1\cup R_2$ 和 $R_1R_2$
+      也是正则表达式，并且
+      \[
+        L(R_1\cup R_2)=L(R_1)\cup L(R_2),
+        \qquad
+        L(R_1R_2)=L(R_1)L(R_2);
+      \]
+    \item 如果 $R$ 是正则表达式，那么 $R^*$ 也是正则表达式，并且
+      \[
+        L(R^*)=L(R)^*.
+      \]
+  \end{enumerate}
+
+  在省略括号时，Kleene 星的优先级最高，拼接次之，并集最低。
+  另外用 $\eps$ 作为 $\varnothing^*$ 的简写。
+\end{definition}
+
+\begin{example}
+  \label{ex:regex-at-least-two-zeroes}
+  至少含两个 $0$ 的二进制串构成的语言可以写成
+
+  \[
+    (0\cup1)^*0(0\cup1)^*0(0\cup1)^*.
+  \]
+\end{example}
+
+\begin{theorem}[正则表达式刻画正则语言]
+  \label{thm:regular-expression-characterization}
+  一个语言是正则语言，当且仅当它能由正则表达式描述。
+\end{theorem}
+
+\begin{proof}
+  先设语言由正则表达式 $R$ 描述。对 $R$ 的递归结构归纳：三个基本表达式
+  描述的语言都是正则的；归纳步骤则分别由正则语言对并集、拼接和 Kleene 星
+  的封闭性得到。因此 $L(R)$ 正则。
+
+  反过来，设正则语言 $A$ 由某个 NFA $N$ 判定。先给 $N$ 增加一个没有入边
+  的新初态和一个没有出边的唯一新接受态：从新初态向原初态添加
+  $\eps$-转移，再从每个原接受态向新接受态添加 $\eps$-转移。
+
+  把任意两个状态之间的所有边合并为一条边，并用这些边标签的并集作为新标签；
+  没有边时，标签记为 $\varnothing$。随后逐个删除初态与接受态之外的状态。
+  删除状态 $q$ 时，对每对保留的状态 $p,r$，将边 $p\to r$ 的标签更新为
+
+  \[
+    R_{pr}\ \cup\ R_{pq}(R_{qq})^*R_{qr}.
+  \]
+
+  该式分别涵盖了不经过 $q$ 的路径，以及进入 $q$、在 $q$ 处循环有限次后
+  离开的路径。归纳可知，每次删除后，边标签仍描述原自动机中相应的全部路径。
+  最后只剩新初态和新接受态，两者之间的边标签就是一个描述 $A$ 的正则表达式。
+\end{proof}
