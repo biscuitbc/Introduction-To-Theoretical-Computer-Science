@@ -238,3 +238,253 @@ lookup(x, index):
   \]
   因此 $L(k)=O(2^k)$，LOOKUP 电路的规模也是 $O(2^k)$。
 \end{example}
+
+\subsection{精细上界}
+
+\begin{proof}[\cref{thm:all-boolean-functions-have-circuits}的精细上界证明]
+  先考虑单输出函数 $f:\bits^n\to\bits$。取 $k<n$，并把输入写成
+
+  \[
+    x=(u,v),
+    \qquad
+    u\in\bits^k,
+    \quad
+    v\in\bits^{n-k}.
+  \]
+
+  对每个 $v\in\bits^{n-k}$，定义 $k$ 元函数
+
+  \[
+    h_v(u)=f(u,v).
+  \]
+
+  先共享地构造全部 $2^k$ 个最小项（minterm）
+
+  \[
+    M_a(u)=\bigwedge_{r=0}^{k-1}
+    \begin{cases}
+      u_r, & a_r=1,\\
+      \neg u_r, & a_r=0,
+    \end{cases}
+    \qquad a\in\bits^k,
+  \]
+
+  代价为 $O(k2^k)$。任意函数 $h:\bits^k\to\bits$ 都可以写成
+
+  \[
+    h(u)=\bigvee_{\substack{a\in\bits^k\\h(a)=1}}M_a(u),
+  \]
+
+  因此，在最小项已经构造好的前提下，每个 $h$ 只需额外 $O(2^k)$ 个门。
+  $k$ 元布尔函数总共只有 $2^{2^k}$ 种，所以全部不同的 $h_v$ 可以用
+
+  \[
+    O\!\left(k2^k+2^{2^k}2^k\right)
+  \]
+
+  个门计算。重复出现的 $h_v$ 直接复用同一根输出线。由此得到真值表
+  （truth table）的一整行
+
+  \[
+    G(u)=\bigl(h_v(u)\bigr)_{v\in\bits^{n-k}}
+    \in\bits^{2^{n-k}}.
+  \]
+
+  最后用 $v$ 查表：
+
+  \[
+    f(u,v)=\operatorname{LOOKUP}_{n-k}\bigl(G(u),v\bigr).
+  \]
+
+  由\cref{ex:lookup-circuit}，这一步需要 $O(2^{n-k})$ 个门。总规模为
+
+  \begin{equation}
+    \label{eq:refined-upper-bound-cost}
+    O\!\left(k2^k+2^{2^k}2^k+2^{n-k}\right).
+  \end{equation}
+
+  对充分大的 $n$，令 $d=n-2\log_2 n$，并选择整数 $k$ 使得
+
+  \[
+    \frac d2<2^k\leq d.
+  \]
+
+  于是
+
+  \[
+    2^{2^k}2^k
+      \leq \frac{2^n}{n^2}\,n
+      =\frac{2^n}{n},
+    \qquad
+    2^{n-k}
+      <\frac{2^{n+1}}{n-2\log_2 n}
+      =O\!\left(\frac{2^n}{n}\right).
+  \]
+
+  同时 $k2^k=O(n\log n)=O(2^n/n)$，故
+  \cref{eq:refined-upper-bound-cost}为 $O(2^n/n)$。
+  有限多个较小的 $n$ 可以吸收到大 $O$ 的常数中。最后对 $m$ 个输出位
+  分别使用这一构造，即得
+
+  \[
+    \card{C}=O\!\left(\frac{m2^n}{n}\right).
+  \]
+\end{proof}
+
+\subsection{计数下界}
+
+下面用计数论证（counting argument）说明上述关于 $n$ 的上界不能继续改进
+到更低的数量级。
+
+\begin{proposition}[布尔函数的电路下界]
+  \label{prop:boolean-circuit-counting-lower-bound}
+  存在常数 $c_0>0$，使得对所有充分大的 $n$，都有某个函数
+  $f:\bits^n\to\bits$ 的任意布尔电路至少需要
+
+  \[
+    c_0\frac{2^n}{n}
+  \]
+
+  个逻辑门。
+\end{proposition}
+
+\begin{proof}
+  一共有
+
+  \[
+    2^{2^n}
+  \]
+
+  个函数 $\bits^n\to\bits$。另一方面，设一个 NAND-Circ 程序至多有
+  $s$ 行，并考虑 $s\geq n$ 的情形。程序中至多出现 $n+s\leq 2s$ 个值。
+  即使把每行都宽松地记为一个三元组，并把所有不合法的三元组序列也计算
+  在内，仍存在常数 $c\geq 1$，使这类程序的数量至多为
+
+  \[
+    2^{cs\log_2 s}.
+  \]
+
+  取
+
+  \[
+    s=\left\lfloor\frac{2^n}{2cn}\right\rfloor.
+  \]
+
+  当 $n$ 充分大时，$s\geq n$ 且 $\log_2s\leq n$，所以
+
+  \[
+    cs\log_2s\leq 2^{n-1},
+    \qquad
+    2^{cs\log_2s}<2^{2^n}.
+  \]
+
+  程序少于函数，故至少有一个函数不能由 $s$ 行以内的 NAND-Circ 程序
+  计算。再由 NAND 门与 AND、OR、NOT 门之间的常数规模转换，结论成立。
+\end{proof}
+
+因此，\cref{thm:all-boolean-functions-have-circuits}给出的
+$O(2^n/n)$ 单输出上界在常数因子意义下是紧的。
+
+\section{程序编码与通用求值}
+
+下面约定 $s\geq\max\{n,m,2\}$。一个含 $s$ 行、$n$ 个输入和 $m$ 个输出的
+NAND-Circ 程序至多需要 $3s$ 个变量。把它们依次编号为
+
+\[
+  v_0,v_1,\ldots,v_{3s-1},
+\]
+
+其中 $v_0,\ldots,v_{n-1}$ 存放输入，$v_n,\ldots,v_{n+m-1}$ 存放输出。
+每行程序编码为三元组
+
+\[
+  (a,b,c),
+  \qquad
+  v_a\gets\operatorname{NAND}(v_b,v_c).
+\]
+
+令 $\ell=\lceil\log_2(3s)\rceil$。每个下标用 $\ell$ 位表示，故整个程序
+可以编码为长度 $3s\ell$ 的二进制串。
+
+\begin{example}[通用求值函数]
+  \label{ex:universal-evaluation}
+  定义通用求值函数（universal evaluation function）
+
+  \[
+    \operatorname{EVAL}_{s,n,m}:
+    \bits^{3s\ell+n}\longrightarrow\bits^m.
+  \]
+
+  输入写成 $(p,x)$，其中 $p$ 是一个程序编码，$x\in\bits^n$。规定
+
+  \[
+    \operatorname{EVAL}_{s,n,m}(p,x)=
+    \begin{cases}
+      P(x), & p\text{ 编码了合法程序 }P,\\
+      0^m,  & \text{否则}.
+    \end{cases}
+  \]
+\end{example}
+
+\begin{theorem}[通用 NAND-Circ 程序]
+  \label{thm:universal-nand-circ-program}
+  对任意 $s\geq\max\{n,m,2\}$，都存在计算
+  $\operatorname{EVAL}_{s,n,m}$ 的 NAND-Circ 程序 $U_{s,n,m}$，并且
+
+  \[
+    \card{U_{s,n,m}}=O(s^2\log s).
+  \]
+\end{theorem}
+
+\begin{proof}
+  以下出现的 LOOKUP、MUX 与等值测试都按前文展开为 NAND 门。
+  用 $V\in\bits^{3s}$ 保存被模拟程序的全部变量值。首先令
+
+  \[
+    V^{(0)}=(x_0,\ldots,x_{n-1},0,\ldots,0).
+  \]
+
+  对一个用 $\ell$ 位表示的下标 $i$，将 $V$ 补零到长度 $2^\ell$，再调用
+  \cref{ex:lookup-circuit}，即可实现
+
+  \[
+    \operatorname{GET}(V,i)=V_i
+  \]
+
+  ，代价为 $O(2^\ell)=O(s)$。更新操作逐坐标定义为
+
+  \[
+    \operatorname{UPDATE}(V,i,z)_j
+    =\operatorname{MUX}\bigl(
+      \operatorname{EQ}_{\ell}(i,j),V_j,z
+    \bigr),
+    \qquad 0\leq j<3s,
+  \]
+
+  其中 $\operatorname{EQ}_{\ell}$ 是 $\ell$ 位等值测试（equality test），
+  可用 $O(\ell)=O(\log s)$ 个门实现。因此
+
+  \[
+    \card{\operatorname{UPDATE}}=O(s\log s).
+  \]
+
+  若程序的第 $t$ 行编码为 $(a_t,b_t,c_t)$，则依次计算
+
+  \begin{align*}
+    r_t&=\operatorname{GET}(V^{(t-1)},b_t),\\
+    q_t&=\operatorname{GET}(V^{(t-1)},c_t),\\
+    z_t&=\operatorname{NAND}(r_t,q_t),\\
+    V^{(t)}&=\operatorname{UPDATE}(V^{(t-1)},a_t,z_t).
+  \end{align*}
+
+  每轮使用 $O(s\log s)$ 个门，模拟 $s$ 行共需 $O(s^2\log s)$ 个门。
+  同时维护“变量是否已经定义”的比特，并检查下标范围、读取顺序和输出是否
+  已定义，只会使每轮多出常数次 GET、UPDATE 与等值测试。最后用合法性比特
+  屏蔽输出：合法时输出 $V_n^{(s)},\ldots,V_{n+m-1}^{(s)}$，否则输出
+  $0^m$。总规模仍为 $O(s^2\log s)$。
+\end{proof}
+
+\begin{question}
+  能否把\cref{thm:universal-nand-circ-program}的规模改进到
+  $O(s\log s)$？
+\end{question}

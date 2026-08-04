@@ -7,6 +7,7 @@
 - [第 1 讲手写原稿](./TCS%20lec1.pdf)
 - [第 2 讲 LaTeX 源码](./chapters/lecture02.tex)
 - [第 2 讲手写原稿](./TCS%20lec2.pdf)
+- [第 2 讲手写原稿（续）](./TCS%20lec3.pdf)
 
 ## 编译
 
