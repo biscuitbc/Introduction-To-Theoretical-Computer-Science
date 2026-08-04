@@ -3,8 +3,8 @@
 
 理论计算机科学经常把两个层面分开讨论：函数（function）描述要计算
 \emph{什么}，是问题的规格；程序（program）描述\emph{如何}计算，是规格
-的一种实现。从函数到程序，就是把抽象的东西具体化。本讲先用二进制串
-形式化“描述”，再比较函数与程序在数量上的差异。
+的一种实现。从函数到程序，就是把抽象的东西具体化。本讲先用
+二进制串（binary string）形式化“描述”，再比较函数与程序在数量上的差异。
 
 全文约定
 \[
@@ -19,7 +19,7 @@
   \[
     \Sigma^n=\{(a_1,\ldots,a_n):a_i\in\Sigma\}.
   \]
-  特别地，$\Sigma^0=\{\eps\}$，其中 $\eps$ 表示空串。记
+  特别地，$\Sigma^0=\{\eps\}$，其中 $\eps$ 表示空串（empty string）。记
   \[
     \Sigma^*=\bigcup_{n\geq 0}\Sigma^n,
     \qquad
@@ -28,13 +28,15 @@
   对 $x\in\Sigma^n$，记其长度为 $\card{x}=n$。
 
   对 $x,y\in\Sigma^*$，把二者的串联记为 $xy$。如果存在
-  $z\in\Sigma^*$ 使得 $y=xz$，则称 $x$ 是 $y$ 的\emph{前缀}。如果还能
-  取到 $z\neq\eps$，则称 $x$ 是 $y$ 的\emph{真前缀}。
+  $z\in\Sigma^*$ 使得 $y=xz$，则称 $x$ 是 $y$ 的\emph{前缀}（prefix）。
+  如果还能取到 $z\neq\eps$，则称 $x$ 是 $y$ 的\emph{真前缀}
+  （proper prefix）。
 \end{definition}
 
 \begin{definition}[编码]
   \label{def:encoding}
-  集合 $A$ 上的一个（二进制）\emph{编码}是单射
+  集合 $A$ 上的一个（二进制）\emph{编码}（encoding）是单射
+  （injective map）
   \[
     E:A\longrightarrow\Sigma^*.
   \]
@@ -177,9 +179,10 @@ $\eps$。对映射 $E:A\to\Sigma^*$，定义其逐项串联扩张
 
 \begin{definition}[至多可数]
   \label{def:countable}
-  如果存在单射 $f:A\to\Nat$，则称集合 $A$ 是\emph{至多可数的}。
-  换言之，$A$ 或者是有限集，或者可以与自然数集 $\Nat$ 建立双射。当
-  $A\neq\varnothing$ 时，这也等价于存在满射 $g:\Nat\to A$。
+  如果存在单射 $f:A\to\Nat$，则称集合 $A$ 是\emph{至多可数的}
+  （at most countable）。换言之，$A$ 或者是有限集，或者可以与自然数集
+  $\Nat$ 建立双射（bijection）。当 $A\neq\varnothing$ 时，这也等价于
+  存在满射（surjection）$g:\Nat\to A$。
 \end{definition}
 
 \begin{remark}
@@ -233,7 +236,7 @@ $\eps$。对映射 $E:A\to\Sigma^*$，定义其逐项串联扩张
 
 \begin{definition}[问题]
   \label{def:problem}
-  在本讲义中，一个（计算）\emph{问题}是函数
+  在本讲义中，一个（计算）\emph{问题}（computational problem）是函数
   \[
     f:\Sigma^*\longrightarrow\Sigma^*.
   \]

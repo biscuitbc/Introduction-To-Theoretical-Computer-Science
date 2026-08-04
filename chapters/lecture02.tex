@@ -1,12 +1,14 @@
 \chapter{布尔电路}
 \label{chap:boolean-circuits}
 
-布尔电路（Boolean circuit）用有限个逻辑门把输入比特变成输出比特。本讲
+布尔电路（Boolean circuit）用有限个逻辑门（logic gate）把输入比特（bit）
+变成输出比特。本讲
 使用三种基本逻辑门：与门（AND）、或门（OR）和非门（NOT）。
 
 \section{电路模型}
 
-一个布尔电路 $C$ 可以看成有限的有向无环图。图中包含：
+一个布尔电路 $C$ 可以看成有限的有向无环图（directed acyclic graph, DAG）。
+图中包含：
 
 \begin{enumerate}[label=\arabic*.]
   \item $n$ 个输入结点 $x_0,\ldots,x_{n-1}$；
@@ -15,8 +17,8 @@
 \end{enumerate}
 
 AND 和 OR 门各有两个输入，NOT 门有一个输入。因为图中没有有向环，所以
-各个门可以按拓扑顺序依次求值。电路的\emph{规模}是其中逻辑门的数量，记为
-$\card{C}$。
+各个门可以按拓扑顺序（topological order）依次求值。电路的\emph{规模}
+（size）是其中逻辑门的数量，记为 $\card{C}$。
 
 \begin{definition}[电路计算]
   \label{def:circuit-computes}
@@ -27,7 +29,7 @@ $\card{C}$。
 
 \begin{example}
   \label{ex:xor-circuit}
-  异或函数可以写成
+  异或函数（exclusive OR, XOR）可以写成
   \[
     \operatorname{XOR}(a,b)
     =\neg(a\land b)\land(a\lor b),
@@ -39,7 +41,8 @@ $\card{C}$。
 
 \begin{definition}[AON-Circ 程序]
   \label{def:aon-circ-program}
-  AON-Circ 程序是一列按顺序执行的赋值语句。每条语句调用一次 AND、OR
+  AON-Circ 程序是一列按顺序执行的赋值语句（assignment statement）。
+  每条语句调用一次 AND、OR
   或 NOT，并且只能读取输入变量或此前语句已经算出的变量。程序最后指定
   $m$ 个变量作为输出。程序的规模是赋值语句的行数。
 \end{definition}
@@ -123,7 +126,8 @@ $a=(a_0,\ldots,a_{n-1})\in\bits^n$，定义
 \[
   f_j(x)=\bigvee_{\substack{a\in\bits^n\\f_j(a)=1}}T_a(x).
 \]
-每个 $T_a$ 使用 $O(n)$ 个门，而这样的项至多有 $2^n$ 个，所以一个输出
+这就是析取范式（disjunctive normal form, DNF）的直接构造。每个 $T_a$
+使用 $O(n)$ 个门，而这样的项至多有 $2^n$ 个，所以一个输出
 比特需要 $O(n2^n)$ 个门。分别构造 $m$ 个输出，便得到
 \[
   \card{C}=O(mn2^n).
@@ -145,14 +149,15 @@ $O(m2^n/n)$ 上界去掉了这个直接构造中的冗余。这个更精细的�
 为了证明\cref{thm:all-boolean-functions-have-circuits}，我们先来介绍一些
 特性和例子。
 
-\subsection{NAND-Circ 程序中的语法糖}
+\subsection{NAND-Circ 程序中的语法糖（syntactic sugar）}
 
 为了让程序更容易书写，可以暂时加入以下三种\emph{语法糖}：
 
 \begin{enumerate}[label=\arabic*.]
-  \item \textbf{定长循环：}把循环体复制固定次数；
-  \item \textbf{用户定义过程：}在调用处展开过程体；
-  \item \textbf{条件语句：}同时计算两个分支，再用选择器输出其中一个。
+  \item \textbf{定长循环（fixed-length loop）：}把循环体复制固定次数；
+  \item \textbf{用户定义过程（user-defined procedure）：}在调用处展开过程体；
+  \item \textbf{条件语句（conditional statement）：}同时计算两个分支，
+    再用选择器（multiplexer, MUX）输出其中一个。
 \end{enumerate}
 
 条件语句中的一比特选择器可以写成
@@ -178,7 +183,7 @@ $O(m2^n/n)$ 上界去掉了这个直接构造中的冗余。这个更精细的�
   \[
     \operatorname{ADD}_n:\bits^{2n}\longrightarrow\bits^{n+1}.
   \]
-  令 $\operatorname{MAJ}(a,b,c)$ 表示三个比特的多数值，即
+  令 $\operatorname{MAJ}(a,b,c)$ 表示三个比特的多数值（majority），即
   \[
     \operatorname{MAJ}(a,b,c)
     =(a\land b)\lor(a\land c)\lor(b\land c).
@@ -205,7 +210,7 @@ return result
   \[
     j=\sum_{r=0}^{k-1}i_r2^{k-1-r}.
   \]
-  查表函数返回第 $j$ 个数据比特：
+  查表函数（lookup function）返回第 $j$ 个数据比特：
   \[
     \operatorname{LOOKUP}_k:
     \bits^{2^k+k}\longrightarrow\bits,
