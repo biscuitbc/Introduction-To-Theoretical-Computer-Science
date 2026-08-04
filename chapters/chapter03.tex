@@ -1,0 +1,85 @@
+\chapter{布尔函数与语言}
+\label{chap:boolean-functions-and-languages}
+\lecture
+\label{lec:boolean-functions-and-languages}
+
+\section{从一般函数到布尔函数}
+
+一般的计算问题是函数
+
+\[
+  f:\bitsstar\longrightarrow\bitsstar.
+\]
+
+事实上，只研究取值于 $\bits$ 的布尔函数并不会损失一般性。给定 $f$，
+定义它的逐位查询函数
+
+\[
+  b_f:\bitsstar\times\Nat\times\bits\longrightarrow\bits
+\]
+
+如下：
+
+\begin{equation}
+  \label{eq:bit-query-function}
+  b_f(x,i,c)=
+  \begin{cases}
+    f(x)_i, & i<\card{f(x)}\text{ 且 }c=0,\\
+    1,      & i<\card{f(x)}\text{ 且 }c=1,\\
+    0,      & i\geq\card{f(x)}.
+  \end{cases}
+\end{equation}
+
+这里从 $0$ 开始给输出位编号。自然数 $i$ 和三元组 $(x,i,c)$ 均使用固定的
+二进制编码；具体选用哪一种合理编码，不影响下面的可计算性结论。
+
+\begin{lemma}[逐位查询与原函数等价]
+  \label{lem:bit-query-computability}
+  函数 $f$ 可计算，当且仅当 $b_f$ 可计算。
+\end{lemma}
+
+\begin{proof}
+  若有计算 $f$ 的程序，先算出 $y=f(x)$，再按
+  \cref{eq:bit-query-function} 回答查询，即可计算 $b_f$。
+
+  反过来，注意到
+
+  \[
+    b_f(x,i,1)=1\iff i<\card{f(x)},
+    \qquad
+    f(x)_i=b_f(x,i,0)\quad(i<\card{f(x)}).
+  \]
+
+  从 $i=0$ 开始依次查询 $b_f(x,i,1)$。只要结果为 $1$，就把
+  $b_f(x,i,0)$ 追加到输出；第一次得到 $0$ 时停止。所得字符串恰为 $f(x)$。
+\end{proof}
+
+因此，讨论一般字符串函数的可计算性，可以归约为讨论布尔函数的可计算性。
+
+\section{语言与布尔函数}
+
+\begin{definition}[语言与示性函数]
+  \label{def:language-characteristic-function}
+  一个\emph{语言}（language）是二进制串集合 $A\subseteq\bitsstar$。
+  对布尔函数 $f:\bitsstar\to\bits$，定义
+
+  \[
+    A_f=\{x\in\bitsstar:f(x)=1\}.
+  \]
+
+  反过来，语言 $A$ 的\emph{示性函数}（characteristic function）定义为
+
+  \[
+    \chi_A(x)=
+    \begin{cases}
+      1, & x\in A,\\
+      0, & x\notin A.
+    \end{cases}
+  \]
+\end{definition}
+
+上述两个变换互为逆映射。因此布尔函数与语言一一对应，并且
+
+\[
+  f(x)=1\iff x\in A_f.
+\]

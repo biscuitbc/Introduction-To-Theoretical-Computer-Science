@@ -3,6 +3,8 @@
 \usepackage{amsthm}
 \usepackage{enumitem}
 \usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{automata,positioning}
 \usepackage{microtype}
 \usepackage[unicode,colorlinks=true,linkcolor=blue!55!black,urlcolor=blue!55!black]{hyperref}
 \usepackage[nameinlink,noabbrev]{cleveref}
@@ -22,13 +24,6 @@
 \newcounter{lecture}
 \newcommand{\lecture}{%
   \refstepcounter{lecture}%
-  \par\bigskip
-  \phantomsection
-  \addcontentsline{toc}{section}{Lecture~\thelecture}%
-  \begin{center}
-    {\Large\bfseries Lecture~\thelecture}
-  \end{center}
-  \medskip
 }
 
 % 各类环境使用独立计数器，并分别按章重新编号。
