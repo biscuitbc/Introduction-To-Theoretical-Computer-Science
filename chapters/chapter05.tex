@@ -1,0 +1,297 @@
+\chapter{PDA 与语法}
+\label{chap:pda-and-grammar}
+
+\lecture
+\label{lec:pda-and-grammar}
+
+有限自动机只有有限个状态，无法记录任意长的中间信息。本章在 NFA 上增加一个
+栈，得到下推自动机，并说明它与上下文无关文法具有相同的表达能力。
+
+\section{下推自动机}
+
+\begin{definition}[下推自动机]
+  \label{def:pda}
+  一个\emph{下推自动机}（pushdown automaton, PDA）是四元组
+
+  \[
+    P=(K,s,F,\Delta),
+  \]
+
+  其中 $K$ 是有限状态集，$s\in K$ 是初始状态，$F\subseteq K$ 是接受状态集，
+  而 $\Delta$ 是有限的转移关系：
+
+  \[
+    \Delta\subseteq
+      \bigl(K\times(\bits\cup\{\eps\})\times\bitsstar\bigr)
+      \times\bigl(K\times\bitsstar\bigr).
+  \]
+
+  把 $\Delta$ 中的元素写成
+
+  \[
+    (p,a,\alpha)\longrightarrow(q,\beta).
+  \]
+
+  它表示：自动机在状态 $p$ 读取 $a$，从栈顶弹出 $\alpha$，压入 $\beta$，
+  然后进入状态 $q$。这里 $a\in\bits\cup\{\eps\}$，而
+  $\alpha,\beta\in\bitsstar$；$a=\eps$ 表示不读取输入。约定栈顶位于栈串
+  的左端。
+\end{definition}
+
+\begin{definition}[格局与一步转移]
+  \label{def:pda-configuration}
+  PDA $P$ 的一个\emph{格局}（configuration）是三元组
+
+  \[
+    (p,x,\gamma)\in K\times\bitsstar\times\bitsstar,
+  \]
+
+  分别记录当前状态、尚未读取的输入和栈内容。若
+  $(p,a,\alpha)\to(q,\beta)$ 是一条转移，则
+
+  \[
+    (p,ax,\alpha\gamma)\vdash_P(q,x,\beta\gamma),
+  \]
+
+  其中约定 $\eps x=x$。记 $\vdash_P^*$ 为 $\vdash_P$ 的自反传递闭包。
+\end{definition}
+
+\begin{definition}[接受与上下文无关语言]
+  \label{def:pda-acceptance-cfl}
+  PDA $P=(K,s,F,\Delta)$ \emph{接受}字符串 $w$，是指存在 $q\in F$ 使得
+
+  \[
+    (s,w,\eps)\vdash_P^*(q,\eps,\eps).
+  \]
+
+  PDA 接受的语言记为
+
+  \[
+    L(P)=\{w\in\bitsstar:P\text{ 接受 }w\}.
+  \]
+
+  如果 $L=L(P)$ 对某个 PDA $P$ 成立，则称 $L$ 是\emph{上下文无关语言}
+  （context-free language, CFL）。
+\end{definition}
+
+\begin{example}[含有相同数量的 $0$ 和 $1$]
+  \label{ex:pda-equal-zeroes-ones}
+  令
+
+  \[
+    L_{=}=\{w\in\bitsstar:\mathop{\#}_0(w)=\mathop{\#}_1(w)\}.
+  \]
+
+  取只有一个状态 $q$ 的 PDA，并令 $q$ 同时为初始状态和接受状态。它具有以下
+  四条转移：
+
+  \begin{align*}
+    (q,0,\eps)&\longrightarrow(q,0), &
+    (q,0,1)&\longrightarrow(q,\eps),\\
+    (q,1,\eps)&\longrightarrow(q,1), &
+    (q,1,0)&\longrightarrow(q,\eps).
+  \end{align*}
+
+  读到一个比特时，自动机可以把它压栈；如果栈顶是相反的比特，也可以将二者
+  抵消。若一条计算路径以空栈结束，每次压入的 $0$ 都与一个读入的 $1$ 配对，
+  反之亦然，所以输入中两种比特数量相同。
+
+  反过来，每次优先抵消相反的栈顶，否则把当前比特压栈。此时栈中始终只含同
+  一种比特，栈高等于已读前缀中两种比特数量之差的绝对值。因此输入属于
+  $L_{=}$ 时，最终栈为空。故这个 PDA 恰好接受 $L_{=}$。
+\end{example}
+
+对字符串 $w=w_0w_1\cdots w_{n-1}$，记
+
+\[
+  w^{\mathsf R}=w_{n-1}\cdots w_1w_0
+\]
+
+为它的反转（reverse）。
+
+\begin{example}[偶数长度的回文串]
+  \label{ex:pda-even-palindromes}
+  语言
+
+  \[
+    L_{\mathrm{even\text{-}pal}}
+      =\{ww^{\mathsf R}:w\in\bitsstar\}
+  \]
+
+  可由状态集 $K=\{\ell,r\}$、初态 $\ell$、接受状态集 $\{r\}$ 的 PDA 接受。
+  它的转移为
+
+  \begin{align*}
+    (\ell,0,\eps)&\longrightarrow(\ell,0), &
+    (\ell,1,\eps)&\longrightarrow(\ell,1),\\
+    (\ell,\eps,\eps)&\longrightarrow(r,\eps),\\
+    (r,0,0)&\longrightarrow(r,\eps), &
+    (r,1,1)&\longrightarrow(r,\eps).
+  \end{align*}
+
+  自动机在状态 $\ell$ 把前半段压栈，并非确定地猜测中点；进入 $r$ 后，后半段
+  必须逐位匹配并弹出栈顶。因此它恰好接受形如 $ww^{\mathsf R}$ 的字符串。
+\end{example}
+
+\section{上下文无关文法}
+
+\begin{definition}[上下文无关文法]
+  \label{def:cfg}
+  二进制字母表上的一个\emph{上下文无关文法}
+  （context-free grammar, CFG）是三元组
+
+  \[
+    G=(V,S,R),
+  \]
+
+  其中：
+
+  \begin{enumerate}[label=\arabic*.]
+    \item $V$ 是包含终结符 $0,1$ 的有限符号集；
+    \item $S\in V\setminus\bits$ 是开始符号（start symbol）；
+    \item $R\subseteq(V\setminus\bits)\times V^*$ 是有限的产生式
+      （production rule）集合。
+  \end{enumerate}
+
+  产生式 $(A,u)\in R$ 通常写作 $A\to u$。$V\setminus\bits$ 中的符号称为
+  非终结符（nonterminal）。
+\end{definition}
+
+\begin{definition}[推导与生成语言]
+  \label{def:cfg-derivation}
+  设 $x,y,u\in V^*$，$A\in V\setminus\bits$。如果 $A\to u$ 是 $G$ 的
+  产生式，则记
+
+  \[
+    xAy\Rightarrow_G xuy.
+  \]
+
+  记 $\Rightarrow_G^*$ 为 $\Rightarrow_G$ 的自反传递闭包。若
+  $S\Rightarrow_G^*w$，则称 $G$ \emph{生成} $w$；$G$ 生成的语言为
+
+  \[
+    L(G)=\{w\in\bitsstar:S\Rightarrow_G^*w\}.
+  \]
+\end{definition}
+
+\begin{example}[回文串文法]
+  \label{ex:cfg-palindromes}
+  取 $V=\{0,1,S\}$，产生式为
+
+  \[
+    S\to\eps
+    \mid 0
+    \mid 1
+    \mid 0S0
+    \mid 1S1.
+  \]
+
+  每次递归产生式都在两端添加相同的比特，而三个基本产生式生成长度为
+  $0$ 或 $1$ 的回文串。因此
+
+  \[
+    L(G)=\{w\in\bitsstar:w=w^{\mathsf R}\}.
+  \]
+\end{example}
+
+\section{PDA 与 CFG 的等价性}
+
+为了给出等价性的构造，先把 PDA 的转移化为统一的形式。
+
+\begin{definition}[简单 PDA]
+  \label{def:simple-pda}
+  如果一个 PDA 只有一个接受状态，并且每条转移
+
+  \[
+    (p,a,\alpha)\longrightarrow(q,\beta)
+  \]
+
+  都恰好执行以下一种操作，则称它是\emph{简单 PDA}（simple PDA）：
+
+  \begin{enumerate}[label=\arabic*.]
+    \item $\alpha=\eps$ 且 $\card{\beta}=1$，即压入一个比特；
+    \item $\card{\alpha}=1$ 且 $\beta=\eps$，即弹出一个比特。
+  \end{enumerate}
+\end{definition}
+
+\begin{lemma}[PDA 的简化]
+  \label{lem:pda-to-simple-pda}
+  每个 PDA 都存在一个接受相同语言的简单 PDA。
+\end{lemma}
+
+\begin{proof}
+  对每条广义转移引入只供它使用的中间状态。先逐位弹出 $\alpha$，再按逆序
+  逐位压入 $\beta$；输入符号只在这一串新转移的第一步读取。若
+  $\alpha=\beta=\eps$，则用“压入一个 $0$，再立即弹出”代替原转移。
+  这样每一步都只压入或弹出一个比特。
+
+  最后增加唯一的新接受状态。把原接受状态改为普通状态，并从每个原接受状态
+  经由“压入一个 $0$，再弹出”连接到新接受状态。由于接受时输入和栈都必须为
+  空，这些修改既不会增加也不会删去任何被接受的字符串。
+\end{proof}
+
+\begin{theorem}[PDA 与 CFG 等价]
+  \label{thm:pda-cfg-equivalence}
+  对语言 $L\subseteq\bitsstar$，以下两件事等价：
+
+  \begin{enumerate}[label=\arabic*.]
+    \item 存在 PDA $P$ 使得 $L=L(P)$；
+    \item 存在 CFG $G$ 使得 $L=L(G)$。
+  \end{enumerate}
+\end{theorem}
+
+\begin{proof}
+  先设 $G=(V,S,R)$ 是生成 $L$ 的 CFG。因为 $V$ 有限，可以取某个定长单射编码
+  $c:V\to\bits^m$，并把 $c$ 按串联扩展到 $V^*$，其中
+  $c(\eps)=\eps$。构造 PDA $P_G$，其状态集为 $\{s_0,q\}$，初态为
+  $s_0$，唯一接受状态为 $q$。加入转移
+
+  \begin{align*}
+    (s_0,\eps,\eps)&\longrightarrow(q,c(S)),\\
+    (q,\eps,c(A))&\longrightarrow(q,c(u))
+      &&(A\to u\in R),\\
+    (q,b,c(b))&\longrightarrow(q,\eps)
+      &&(b\in\bits).
+  \end{align*}
+
+  第一条转移把开始符号压栈，第二类转移模拟最左推导，第三类转移将已生成的
+  终结符与输入逐位匹配。因此 $P_G$ 接受 $w$ 当且仅当
+  $S\Rightarrow_G^*w$，故它接受 $L$。
+
+  反过来，由\cref{lem:pda-to-simple-pda}，只需考虑简单 PDA
+  $P=(K,s,\{f\},\Delta)$。对每对状态 $p,q\in K$ 引入非终结符 $A_{pq}$，
+  并取开始符号 $A_{sf}$。加入以下产生式：
+
+  \begin{align*}
+    A_{pp}&\to\eps &&(p\in K),\\
+    A_{pq}&\to A_{pr}A_{rq} &&(p,q,r\in K).
+  \end{align*}
+
+  此外，若 $a,b\in\bits\cup\{\eps\}$、$d\in\bits$，且 $P$ 含有一条
+  压栈转移和一条与之匹配的弹栈转移
+
+  \[
+    (p,a,\eps)\longrightarrow(p',d),
+    \qquad
+    (q',b,d)\longrightarrow(q,\eps),
+  \]
+
+  则加入
+
+  \[
+    A_{pq}\to aA_{p'q'}b,
+  \]
+
+  其中 $a=\eps$ 或 $b=\eps$ 时省略相应符号。
+
+  对推导树和计算步数归纳可得
+
+  \[
+    A_{pq}\Rightarrow_G^*w
+    \iff
+    (p,w,\eps)\vdash_P^*(q,\eps,\eps).
+  \]
+
+  第一类产生式对应空计算，第二类对应在栈为空处把计算分成两段，第三类对应
+  一次压栈及其匹配的弹栈。取 $p=s,q=f$，便有 $L(G)=L(P)$。
+\end{proof}
