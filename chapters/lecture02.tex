@@ -129,12 +129,8 @@ $a=(a_0,\ldots,a_{n-1})\in\bits^n$，定义
   \card{C}=O(mn2^n).
 \]
 \cref{thm:all-boolean-functions-have-circuits}中的
-$O(m2^n/n)$ 上界去掉了这个直接构造中的冗余。
-
-% 定理 2.2 的精细上界证明留待下一讲补充。
-\noindent\textit{精细上界的证明.}
-
-\vspace{4\baselineskip}
+$O(m2^n/n)$ 上界去掉了这个直接构造中的冗余。这个更精细的上界将在后文
+证明。
 
 \begin{definition}[通用门组]
   \label{def:universal-gate-set}
@@ -145,6 +141,9 @@ $O(m2^n/n)$ 上界去掉了这个直接构造中的冗余。
 由\cref{thm:all-boolean-functions-have-circuits}和上面的三个恒等式，NAND
 门本身就是通用的。因此，要判断一组门 $\mathcal F$ 是否通用，只需判断
 能否仅用 $\mathcal F$ 中的门实现 NAND 函数。
+
+为了证明\cref{thm:all-boolean-functions-have-circuits}，我们先来介绍一些
+特性和例子。
 
 \subsection{NAND-Circ 程序中的语法糖}
 
