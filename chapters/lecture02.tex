@@ -107,14 +107,34 @@ $\card{C}$。
   \]
 \end{theorem}
 
-% 定理 2.2 的证明留待下一讲补充。
-\begin{proof}
-  \renewcommand{\qedsymbol}{}
-  \mbox{}\vspace{5\baselineskip}
-\end{proof}
+\paragraph{粗略上界的构造.}
+先考虑 $f$ 的第 $j$ 个输出比特 $f_j$。对每个
+$a=(a_0,\ldots,a_{n-1})\in\bits^n$，定义
+\[
+  T_a(x)=\bigwedge_{r=0}^{n-1}\ell_{a,r}(x_r),
+  \qquad
+  \ell_{a,r}(x_r)=
+  \begin{cases}
+    x_r, & a_r=1,\\
+    \neg x_r, & a_r=0.
+  \end{cases}
+\]
+当且仅当 $x=a$ 时，$T_a(x)=1$。因此
+\[
+  f_j(x)=\bigvee_{\substack{a\in\bits^n\\f_j(a)=1}}T_a(x).
+\]
+每个 $T_a$ 使用 $O(n)$ 个门，而这样的项至多有 $2^n$ 个，所以一个输出
+比特需要 $O(n2^n)$ 个门。分别构造 $m$ 个输出，便得到
+\[
+  \card{C}=O(mn2^n).
+\]
+\cref{thm:all-boolean-functions-have-circuits}中的
+$O(m2^n/n)$ 上界去掉了这个直接构造中的冗余。
 
-一个直接构造给出的粗略上界是 $O(mn2^n)$；
-\cref{thm:all-boolean-functions-have-circuits}中的界去掉了其中的冗余。
+% 定理 2.2 的精细上界证明留待下一讲补充。
+\noindent\textit{精细上界的证明.}
+
+\vspace{4\baselineskip}
 
 \begin{definition}[通用门组]
   \label{def:universal-gate-set}
@@ -125,3 +145,92 @@ $\card{C}$。
 由\cref{thm:all-boolean-functions-have-circuits}和上面的三个恒等式，NAND
 门本身就是通用的。因此，要判断一组门 $\mathcal F$ 是否通用，只需判断
 能否仅用 $\mathcal F$ 中的门实现 NAND 函数。
+
+\subsection{NAND-Circ 程序中的语法糖}
+
+为了让程序更容易书写，可以暂时加入以下三种\emph{语法糖}：
+
+\begin{enumerate}[label=\arabic*.]
+  \item \textbf{定长循环：}把循环体复制固定次数；
+  \item \textbf{用户定义过程：}在调用处展开过程体；
+  \item \textbf{条件语句：}同时计算两个分支，再用选择器输出其中一个。
+\end{enumerate}
+
+条件语句中的一比特选择器可以写成
+\[
+  \operatorname{MUX}(b,u,v)
+  =(\neg b\land u)\lor(b\land v),
+\]
+其中 $b=0$ 时输出 $u$，$b=1$ 时输出 $v$。循环次数和过程参数一旦固定，
+上述写法都能展开成普通的 NAND-Circ 程序，因此不会增强计算能力。
+
+\subsection{ADD 与 LOOKUP}
+
+\begin{example}[ADD]
+  \label{ex:add-circuit}
+  输入包含两个 $n$ 位二进制数。按从低位到高位的顺序，将它们分别记为
+  \[
+    (x_0,\ldots,x_{n-1}),
+    \qquad
+    (x_n,\ldots,x_{2n-1})
+  \]
+  \par\noindent
+  加法函数为
+  \[
+    \operatorname{ADD}_n:\bits^{2n}\longrightarrow\bits^{n+1}.
+  \]
+  令 $\operatorname{MAJ}(a,b,c)$ 表示三个比特的多数值，即
+  \[
+    \operatorname{MAJ}(a,b,c)
+    =(a\land b)\lor(a\land c)\lor(b\land c).
+  \]
+  可以用如下定长循环实现逐位进位加法：
+\begin{verbatim}
+result = [0] * (n + 1)
+carry  = [0] * (n + 1)
+for i in range(n):
+    result[i]  = XOR(carry[i], XOR(x[i], x[i+n]))
+    carry[i+1] = MAJ(carry[i], x[i], x[i+n])
+result[n] = carry[n]
+return result
+\end{verbatim}
+  XOR 和 MAJ 都能用常数个 NAND 门实现。把循环展开后，程序共有 $O(n)$
+  行，因而加法电路的规模为 $O(n)$。
+\end{example}
+
+\begin{example}[LOOKUP]
+  \label{ex:lookup-circuit}
+  输入由 $2^k$ 个数据比特
+  $x_0,\ldots,x_{2^k-1}$ 和 $k$ 个索引比特
+  $i_0,\ldots,i_{k-1}$ 组成。令
+  \[
+    j=\sum_{r=0}^{k-1}i_r2^{k-1-r}.
+  \]
+  查表函数返回第 $j$ 个数据比特：
+  \[
+    \operatorname{LOOKUP}_k:
+    \bits^{2^k+k}\longrightarrow\bits,
+    \qquad
+    \operatorname{LOOKUP}_k(x,i)=x_j.
+  \]
+  它可以递归地把数据表分成两半：
+\begin{verbatim}
+lookup(x, index):
+    if len(index) == 1:
+        if index[0] == 0: return x[0]
+        else:             return x[1]
+    half = len(x) / 2
+    if index[0] == 0:
+        return lookup(x[0:half], index[1:])
+    else:
+        return lookup(x[half:], index[1:])
+\end{verbatim}
+  对电路而言，条件语句的两个分支都要构造，再由 MUX 选择输出。若
+  $L(k)$ 表示展开后的程序行数，则
+  \[
+    L(k)=2L(k-1)+O(1),
+    \qquad
+    L(1)=O(1).
+  \]
+  因此 $L(k)=O(2^k)$，LOOKUP 电路的规模也是 $O(2^k)$。
+\end{example}
