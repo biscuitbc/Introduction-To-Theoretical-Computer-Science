@@ -1,0 +1,127 @@
+\chapter{布尔电路}
+\label{chap:boolean-circuits}
+
+布尔电路（Boolean circuit）用有限个逻辑门把输入比特变成输出比特。本讲
+使用三种基本逻辑门：与门（AND）、或门（OR）和非门（NOT）。
+
+\section{电路模型}
+
+一个布尔电路 $C$ 可以看成有限的有向无环图。图中包含：
+
+\begin{enumerate}[label=\arabic*.]
+  \item $n$ 个输入结点 $x_0,\ldots,x_{n-1}$；
+  \item 若干内部结点，每个结点标记为 AND、OR 或 NOT 门；
+  \item $m$ 个指定的输出结点 $y_0,\ldots,y_{m-1}$。
+\end{enumerate}
+
+AND 和 OR 门各有两个输入，NOT 门有一个输入。因为图中没有有向环，所以
+各个门可以按拓扑顺序依次求值。电路的\emph{规模}是其中逻辑门的数量，记为
+$\card{C}$。
+
+\begin{definition}[电路计算]
+  \label{def:circuit-computes}
+  设 $f:\bits^n\to\bits^m$。如果对每个输入
+  $x\in\bits^n$，电路 $C$ 的 $m$ 个输出比特恰好组成 $f(x)$，则称
+  $C$ \emph{计算}函数 $f$。
+\end{definition}
+
+\begin{example}
+  \label{ex:xor-circuit}
+  异或函数可以写成
+  \[
+    \operatorname{XOR}(a,b)
+    =\neg(a\land b)\land(a\lor b),
+  \]
+  因而可以用 AND、OR 和 NOT 门组成的布尔电路计算。
+\end{example}
+
+\section{AON-Circ 程序与 NAND 门}
+
+\begin{definition}[AON-Circ 程序]
+  \label{def:aon-circ-program}
+  AON-Circ 程序是一列按顺序执行的赋值语句。每条语句调用一次 AND、OR
+  或 NOT，并且只能读取输入变量或此前语句已经算出的变量。程序最后指定
+  $m$ 个变量作为输出。程序的规模是赋值语句的行数。
+\end{definition}
+
+例如，一条语句可以具有以下三种形式之一：
+\[
+  z_i\gets z_j\land z_k,
+  \qquad
+  z_i\gets z_j\lor z_k,
+  \qquad
+  z_i\gets\neg z_j,
+\]
+其中右侧的变量必须已经定义。
+
+\begin{theorem}
+  \label{thm:circuit-program-equivalence}
+  函数 $f$ 能由布尔电路计算，当且仅当它能由 AON-Circ 程序计算。两种表示
+  可以保持规模不变：电路的门数等于对应程序的行数。
+\end{theorem}
+
+\begin{proof}
+  给定电路，按拓扑顺序为每个门写一条赋值语句，即得到 AON-Circ 程序。
+  反过来，为程序的每一行建立一个门，并把该行读取的变量连接到这个门，
+  即得到布尔电路。每个门与每行语句一一对应。
+\end{proof}
+
+与非门（NAND）定义为
+\[
+  \operatorname{NAND}(a,b)=\neg(a\land b).
+\]
+只使用 NAND 门便可实现三个基本门：
+\begin{align*}
+  \neg a
+    &=\operatorname{NAND}(a,a),\\
+  a\land b
+    &=\operatorname{NAND}\bigl(
+        \operatorname{NAND}(a,b),
+        \operatorname{NAND}(a,b)
+      \bigr),\\
+  a\lor b
+    &=\operatorname{NAND}\bigl(
+        \operatorname{NAND}(a,a),
+        \operatorname{NAND}(b,b)
+      \bigr).
+\end{align*}
+因此 NAND 电路与普通布尔电路可以相互转换。若原电路规模为 $s$，则转换后
+分别满足
+\[
+  \card{C_{\mathrm{AON}}}\leq 2\card{C_{\mathrm{NAND}}},
+  \qquad
+  \card{C_{\mathrm{NAND}}}\leq 3\card{C_{\mathrm{AON}}}.
+\]
+
+\section{任意布尔函数的电路实现}
+
+\begin{theorem}
+  \label{thm:all-boolean-functions-have-circuits}
+  对任意 $n,m\geq 1$ 以及任意函数
+  \[
+    f:\bits^n\longrightarrow\bits^m,
+  \]
+  都存在计算 $f$ 的布尔电路。进一步，电路规模可以达到
+  \[
+    \card{C}=O\!\left(\frac{m2^n}{n}\right).
+  \]
+\end{theorem}
+
+% 定理 2.2 的证明留待下一讲补充。
+\begin{proof}
+  \renewcommand{\qedsymbol}{}
+  \mbox{}\vspace{5\baselineskip}
+\end{proof}
+
+一个直接构造给出的粗略上界是 $O(mn2^n)$；
+\cref{thm:all-boolean-functions-have-circuits}中的界去掉了其中的冗余。
+
+\begin{definition}[通用门组]
+  \label{def:universal-gate-set}
+  如果只使用门集合 $\mathcal F$ 中的门就能计算任意布尔函数，则称
+  $\mathcal F$ 是\emph{通用的}（universal）。
+\end{definition}
+
+由\cref{thm:all-boolean-functions-have-circuits}和上面的三个恒等式，NAND
+门本身就是通用的。因此，要判断一组门 $\mathcal F$ 是否通用，只需判断
+能否仅用 $\mathcal F$ 中的门实现 NAND 函数。

@@ -1,10 +1,12 @@
 # 理论计算机科学导引
 
-这是手写讲义的 LaTeX 电子化版本。目前收录第 1 讲“引子”，内容包括二进制串、编码、无前缀编码、可数性与 Cantor 对角化。
+这是手写讲义的 LaTeX 电子化版本。目前收录第 1 讲“引子”和第 2 讲“布尔电路”。
 
 - [编译后的讲义](./lecture-notes.pdf)
 - [第 1 讲 LaTeX 源码](./chapters/lecture01.tex)
 - [第 1 讲手写原稿](./TCS%20lec1.pdf)
+- [第 2 讲 LaTeX 源码](./chapters/lecture02.tex)
+- [第 2 讲手写原稿](./TCS%20lec2.pdf)
 
 ## 编译
 
