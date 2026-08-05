@@ -1,0 +1,277 @@
+\chapter{可计算性}
+\label{chap:computability}
+
+上一章定义了图灵机。本章研究\emph{可计算性}（computability）：首先说明一台
+图灵机可以模拟任意其他图灵机，然后研究哪些函数无法由任何图灵机计算。
+
+\section{通用图灵机}
+
+为了把机器本身作为输入，需要先约定图灵机的编码。对
+$M=(K,\Gamma,s,\delta)$，分别把 $K$ 与 $\Gamma$ 中的元素编号，再把每条转移
+
+\[
+  \delta(q,a)=(q',b,D)
+\]
+
+写成五元组 $(q,a,q',b,D)$。利用自定界编码依次记录状态数、字母表大小、初始
+状态和全部转移，就得到 $M$ 的编码 $\langle M\rangle\in\bitsstar$。这种编码
+具有以下性质：是否合法可以判定，并且可以从合法编码中恢复 $M$ 的全部数据。
+
+下文用 $\langle u,v\rangle$ 表示两个字符串的固定自定界编码，并把
+$U(\langle m,x\rangle)$ 简写为 $U(m,x)$。
+
+\begin{theorem}[通用图灵机]
+  \label{thm:universal-turing-machine}
+  存在一台图灵机 $U$，使得对任意 $m,x\in\bitsstar$，
+
+  \[
+    U(m,x)=
+    \begin{cases}
+      M(x),&m=\langle M\rangle\text{ 是某台图灵机的合法编码},\\
+      0,&m\text{ 不是合法编码}.
+    \end{cases}
+  \]
+
+  第一种情形中，若 $M$ 在 $x$ 上不停机，则 $U$ 也不停机。
+\end{theorem}
+
+\begin{proof}
+  $U$ 先检查并解析 $m$。若编码不合法，就输出 $0$；否则从中恢复
+  $M=(K,\Gamma,s,\delta)$。随后 $U$ 在自己的纸带上记录 $M$ 的当前状态、读写
+  头位置和纸带内容，并根据编码中的转移表逐步更新这三个部分。每一轮模拟 $M$
+  的一步，所以两台机器同时停机且输出相同。
+\end{proof}
+
+这样的 $U$ 称为\emph{通用图灵机}（universal Turing machine）。它表明我们
+不需要为每个算法制造一台新的物理机器：只需把程序编码后交给同一台机器执行。
+
+\section{不可计算函数}
+
+\begin{theorem}[不可计算函数的存在性]
+  \label{thm:uncomputable-function-exists}
+  存在函数 $F:\bitsstar\to\bits$ 不是可计算函数。
+\end{theorem}
+
+\begin{proof}[证明一：计数]
+  每台图灵机都有一个有限二进制编码，所以图灵机的集合至多可数，因而它们至多
+  能计算可数多个函数。另一方面，$\bitsstar$ 是可数无限集，因此从
+  $\bitsstar$ 到 $\bits$ 的函数共有
+
+  \[
+    2^{\aleph_0}
+  \]
+
+  个，是不可数的。故其中必有函数不能由图灵机计算。
+\end{proof}
+
+下面的对角化（diagonalization）证明给出一个具体的不可计算函数。若 $m$ 是
+合法图灵机编码，记其对应的机器为 $M_m$。定义
+
+\begin{equation}
+  \label{eq:diagonal-uncomputable-function}
+  F^*(m)=
+  \begin{cases}
+    0,&m\text{ 合法且 }M_m(m)=1,\\
+    1,&\text{其他情形}.
+  \end{cases}
+\end{equation}
+
+“其他情形”包括 $m$ 非法、$M_m(m)$ 不停机，以及它停机但输出不是 $1$。
+
+\begin{proof}[证明二：对角化]
+  假设某台图灵机 $M_e$ 计算 $F^*$，其中 $e=\langle M_e\rangle$。把 $e$ 输入
+  它自身。若 $M_e(e)=1$，则由 \cref{eq:diagonal-uncomputable-function} 得
+  $F^*(e)=0$；若 $M_e(e)=0$，则同一式给出 $F^*(e)=1$。两种情形都与
+  $M_e(e)=F^*(e)$ 矛盾，故 $F^*$ 不可计算。
+\end{proof}
+
+\section{停机问题}
+
+\begin{definition}[停机问题]
+  \label{def:halting-problem}
+  \emph{停机问题}（halting problem）是函数
+
+  \[
+    \operatorname{HALT}(m,x)=
+    \begin{cases}
+      1,&m=\langle M\rangle\text{ 且 }M\text{ 在输入 }x\text{ 上停机},\\
+      0,&\text{其他情形}.
+    \end{cases}
+  \]
+\end{definition}
+
+\begin{theorem}[停机问题不可计算]
+  \label{thm:halting-problem-uncomputable}
+  函数 $\operatorname{HALT}$ 不可计算。
+\end{theorem}
+
+\begin{proof}
+  假设图灵机 $H$ 计算 $\operatorname{HALT}$。由它构造一台机器 $D$：输入
+  $m$ 后，先计算 $H(m,m)$。若结果为 $0$，则输出 $1$；若结果为 $1$，则按照
+  \cref{thm:universal-turing-machine} 的方法逐步模拟 $M_m(m)$ 直至其停机。
+  若模拟得到的输出恰为 $1$，就输出 $0$；否则输出 $1$。
+
+  当 $H(m,m)=1$ 时，被模拟的机器必定停机，所以 $D$ 在每个输入上都停机。
+  对照 \cref{eq:diagonal-uncomputable-function} 可知 $D$ 恰好计算 $F^*$，这与
+  \cref{thm:uncomputable-function-exists} 矛盾。
+\end{proof}
+
+只询问机器在某个固定输入上是否停机，也不会使问题变得可计算。定义
+
+\[
+  \operatorname{HALT}_0(m)=
+  \begin{cases}
+    1,&m=\langle M\rangle\text{ 且 }M\text{ 在输入 }0\text{ 上停机},\\
+    0,&\text{其他情形}.
+  \end{cases}
+\]
+
+\begin{theorem}[固定输入上的停机问题]
+  \label{thm:halt-on-zero-uncomputable}
+  函数 $\operatorname{HALT}_0$ 不可计算。
+\end{theorem}
+
+\begin{proof}
+  给定 $m,x$，可以有效构造图灵机 $N_{m,x}$：它忽略自己的输入，若 $m$ 合法
+  就模拟 $M_m(x)$，否则永远循环。于是
+
+  \[
+    \operatorname{HALT}(m,x)
+      =\operatorname{HALT}_0(\langle N_{m,x}\rangle).
+  \]
+
+  若 $\operatorname{HALT}_0$ 可计算，等式右侧便给出了停机问题的算法，与
+  \cref{thm:halting-problem-uncomputable} 矛盾。
+\end{proof}
+
+不可计算性不仅涉及机器是否停机，也涉及机器计算了什么函数。
+
+\begin{example}[识别常零函数]
+  \label{ex:zero-function-uncomputable}
+  令 $Z(x)=0$，并定义
+
+  \[
+    \operatorname{ZERO}(m)=
+    \begin{cases}
+      1,&m=\langle M\rangle\text{ 且 }M\text{ 计算函数 }Z,\\
+      0,&\text{其他情形}.
+    \end{cases}
+  \]
+
+  函数 $\operatorname{ZERO}$ 不可计算。
+\end{example}
+
+\begin{proof}
+  假设 $\operatorname{ZERO}$ 可计算。给定 $m,x$，构造机器 $N_{m,x}$：在任意
+  输入 $y$ 上，它先模拟 $M_m(x)$；若模拟停机，就输出 $0$。若 $m$ 非法，则令
+  $N_{m,x}$ 永远循环。因此
+
+  \[
+    \operatorname{HALT}(m,x)
+      =\operatorname{ZERO}(\langle N_{m,x}\rangle),
+  \]
+
+  这将使停机问题可计算，产生矛盾。
+\end{proof}
+
+\section{归约}
+
+\begin{definition}[归约]
+  \label{def:computable-reduction}
+  设 $F,G:\bitsstar\to\bits$。从 $F$ 到 $G$ 的一个\emph{归约}
+  （reduction）是一个可计算函数 $R:\bitsstar\to\bitsstar$，满足
+
+  \[
+    F(x)=G(R(x))
+    \qquad(x\in\bitsstar).
+  \]
+
+  若存在这样的 $R$，记为 $F\leq_{\mathrm m}G$，并称 $F$ 可多对一归约到 $G$
+  （many-one reducible）。
+\end{definition}
+
+\begin{corollary}
+  \label{cor:reduction-preserves-computability}
+  若 $F\leq_{\mathrm m}G$ 且 $G$ 可计算，则 $F$ 可计算。
+\end{corollary}
+
+\begin{proof}
+  先计算 $R(x)$，再计算 $G(R(x))$，所得结果就是 $F(x)$。
+\end{proof}
+
+\begin{corollary}
+  \label{cor:reduction-transfers-uncomputability}
+  若 $F\leq_{\mathrm m}G$ 且 $F$ 不可计算，则 $G$ 不可计算。
+\end{corollary}
+
+\begin{proof}
+  这是 \cref{cor:reduction-preserves-computability} 的逆否命题。
+\end{proof}
+
+前面两个证明已经隐含使用了归约：它们分别给出
+
+\[
+  \operatorname{HALT}\leq_{\mathrm m}\operatorname{HALT}_0,
+  \qquad
+  \operatorname{HALT}\leq_{\mathrm m}\operatorname{ZERO}.
+\]
+
+\section{Rice 定理}
+
+机器的\emph{语义性质}（semantic property）只取决于它所计算的函数，而不
+取决于状态名称、转移表写法等实现细节。
+
+\begin{definition}[语义且非平凡的性质]
+  \label{def:semantic-nontrivial-property}
+  图灵机的性质 $P$ 称为\emph{语义的}，如果任意两台计算同一个偏函数
+  （partial function）的机器 $M,M'$ 都满足
+
+  \[
+    P(M)=P(M').
+  \]
+
+  若存在图灵机 $M_0,M_1$ 使得 $P(M_0)=0$ 且 $P(M_1)=1$，则称 $P$ 是
+  \emph{非平凡的}（non-trivial）。
+\end{definition}
+
+对这样的性质，考虑其判定函数
+
+\[
+  \chi_P(m)=
+  \begin{cases}
+    P(M),&m=\langle M\rangle,\\
+    0,&m\text{ 不是合法编码}.
+  \end{cases}
+\]
+
+\begin{theorem}[Rice 定理]
+  \label{thm:rice}
+  若 $P$ 是图灵机的语义且非平凡的性质，则 $\chi_P$ 不可计算。
+\end{theorem}
+
+\begin{proof}
+  令 $M_\infty$ 为在每个输入上都永远循环的机器。必要时把 $P$ 换成其补性质
+  $1-P$；判定二者是等价的。因此不妨设 $P(M_\infty)=0$。由非平凡性可取一台
+  机器 $M_{\mathrm{yes}}$，使得 $P(M_{\mathrm{yes}})=1$。
+
+  给定 $m,x$，有效构造机器 $N_{m,x}$。它在输入 $y$ 上执行：
+
+  \begin{enumerate}[label=\arabic*.]
+    \item 若 $m$ 非法则永远循环；否则模拟 $M_m(x)$；
+    \item 上一步停机后，模拟 $M_{\mathrm{yes}}(y)$ 并原样输出其结果。
+  \end{enumerate}
+
+  若 $\operatorname{HALT}(m,x)=0$，则 $N_{m,x}$ 与 $M_\infty$ 计算同一个处处
+  无定义的偏函数，所以 $P(N_{m,x})=0$。若
+  $\operatorname{HALT}(m,x)=1$，则 $N_{m,x}$ 与 $M_{\mathrm{yes}}$ 计算同一个
+  偏函数，所以 $P(N_{m,x})=1$。因此
+
+  \[
+    \operatorname{HALT}(m,x)
+      =\chi_P(\langle N_{m,x}\rangle),
+  \]
+
+  即 $\operatorname{HALT}\leq_{\mathrm m}\chi_P$。由
+  \cref{thm:halting-problem-uncomputable} 以及
+  \cref{cor:reduction-transfers-uncomputability} 可知 $\chi_P$ 不可计算。
+\end{proof}
