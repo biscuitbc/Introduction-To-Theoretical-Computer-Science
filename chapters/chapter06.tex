@@ -1,0 +1,210 @@
+\chapter{图灵机}
+\label{chap:turing-machines}
+
+\lecture
+\label{lec:turing-machines}
+
+PDA 仍有其无法识别的语言，例如
+
+\[
+  \{0^n1^n0^n:n\in\Nat\}.
+\]
+
+为了描述更一般的计算，本章引入图灵机。它具有一条无限纸带，可以在有限控制
+下读写纸带并向左右移动。
+
+\section{图灵机模型}
+
+\begin{definition}[图灵机]
+  \label{def:turing-machine}
+  一台\emph{图灵机}（Turing machine, TM）是四元组
+
+  \[
+    M=(K,\Gamma,s,\delta),
+  \]
+
+  其中 $K$ 是有限状态集，$s\in K$ 是初始状态，$\Gamma$ 是有限的纸带字母表
+  （tape alphabet），且
+
+  \[
+    \{0,1,\triangleright,\sqcup\}\subseteq\Gamma.
+  \]
+
+  这里 $\triangleright$ 是纸带左端标记，$\sqcup$ 是空白符。转移函数为
+
+  \[
+    \delta:K\times\Gamma
+      \longrightarrow K\times\Gamma\times\{L,R,S,H\},
+  \]
+
+  其中 $L,R,S,H$ 分别表示左移、右移、原地不动和停机（halt）。为保持左端
+  标记不变，约定读到 $\triangleright$ 时不能左移或改写它，且其他位置不能
+  写入 $\triangleright$。
+\end{definition}
+
+设输入为 $x=x_0x_1\cdots x_{n-1}\in\bitsstar$。纸带是函数
+$T:\Nat\to\Gamma$，其初始内容为
+
+\[
+  T(0)=\triangleright,
+  \qquad
+  T(j+1)=x_j\quad(0\le j<n),
+  \qquad
+  T(j)=\sqcup\quad(j>n).
+\]
+
+机器从状态 $s$、位置 $i=0$ 开始。若当前状态为 $q$，且
+
+\[
+  \delta(q,T(i))=(q',a,D),
+\]
+
+则先令 $T(i)\gets a$、$q\gets q'$，再按照
+
+\[
+  i\gets
+  \begin{cases}
+    i-1,&D=L,\\
+    i+1,&D=R,\\
+    i,&D=S
+  \end{cases}
+\]
+
+移动读写头；若 $D=H$，则写入后立即停机。
+
+机器停机时，从左端标记右侧开始读取，到第一个空白符为止。若读到的符号全是
+比特，就把这个比特串记为 $M(x)$；若机器不停机，或停机时输出区域含有其他
+工作符号，则记 $M(x)=\bot$。
+
+\begin{definition}[可计算函数]
+  \label{def:computable-function}
+  若对每个 $x\in\bitsstar$ 都有 $M(x)=f(x)$，则称图灵机 $M$
+  \emph{计算}函数 $f:\bitsstar\to\bitsstar$，并称 $f$ 是\emph{可计算函数}
+  （computable function）。特别地，计算一个函数的图灵机必须在每个输入上
+  停机并产生合法输出。
+\end{definition}
+
+\section{NAND-TM 编程语言}
+
+图灵机适合刻画计算能力，却不适合直接编写较长的程序。下面引入与它等价、但
+更接近编程语言的 NAND-TM 模型。
+
+\begin{definition}[NAND-TM 程序]
+  \label{def:nand-tm}
+  一个 \emph{NAND-TM 程序}包含有限个布尔标量变量、有限个以非负整数
+  $i\in\Nat$ 为下标的布尔数组，以及一个有限的指令块。与图灵机相同，程序
+  不允许从 $i=0$ 继续左移。
+
+  指令块中的普通指令形如
+
+  \[
+    u\gets\operatorname{NAND}(v,w),
+  \]
+
+  其中变量可以是标量，也可以是当前下标处的数组元素 $A[i]$。每轮执行完这些
+  指令后，程序执行
+
+  \[
+    \operatorname{MODANDJUMP}(a,b),
+  \]
+
+  并按下表修改 $i$，然后回到指令块开头：
+
+  \[
+    \begin{array}{c|c}
+      (a,b)&\text{操作}\\ \hline
+      (1,1)&i\gets i+1\\
+      (0,1)&i\gets i-1\\
+      (1,0)&i\gets i\\
+      (0,0)&\text{停机}
+    \end{array}
+  \]
+
+  输入和输出分别存放在指定数组 $X$ 与 $Y$ 中；为区分字符串末尾，采用一个
+  固定的自定界编码（self-delimiting encoding）。除输入数组中由编码指定的
+ 位置外，所有变量和数组元素的初值均为 $0$。
+\end{definition}
+
+自定界编码的具体选择不影响模型能计算哪些函数；它只负责区分例如 $1$ 与
+$10$ 这类具有不同长度的输入。
+
+\begin{theorem}[图灵机与 NAND-TM 等价]
+  \label{thm:tm-nand-tm-equivalence}
+  图灵机与 NAND-TM 能计算完全相同的函数。
+\end{theorem}
+
+\begin{proof}
+  先用 NAND-TM 模拟图灵机 $M=(K,\Gamma,s,\delta)$。用
+
+  \[
+    k=\lceil\log_2\card K\rceil,
+    \qquad
+    \ell=\lceil\log_2\card\Gamma\rceil
+  \]
+
+  个比特分别编码当前状态和一个纸带符号。状态编码存入 $k$ 个标量；纸带每个
+  位置的符号编码，按位存入 $\ell$ 个布尔数组。下标 $i$ 就是读写头的位置。
+  再用两个比特编码移动方向：
+
+  \[
+    L\leftrightarrow 01,
+    \quad R\leftrightarrow 11,
+    \quad S\leftrightarrow 10,
+    \quad H\leftrightarrow 00.
+  \]
+
+  转移函数 $\delta$ 在有限集合上，因此其编码是一个有限布尔函数，可以由
+  NAND 电路实现。每轮指令先计算新状态和新纸带符号，再把方向编码交给
+  $\operatorname{MODANDJUMP}$；故一轮恰好模拟图灵机的一步。
+
+  反过来，考虑一个有 $k$ 个标量、$\ell$ 个数组的 NAND-TM 程序。图灵机在
+  有限状态中记录 $k$ 个标量的取值以及当前执行到的指令；把同一下标处的
+  $\ell$ 个数组元素合并成纸带字母 $(A_1[i],\ldots,A_\ell[i])$。每条 NAND
+  指令和 $\operatorname{MODANDJUMP}$ 的四种情形都是有限转移，因而均可由
+  图灵机的若干步完成。这样图灵机便可逐轮模拟该程序。
+\end{proof}
+
+\subsection{NAND-TM 程序中的语法糖}
+
+为了便于书写，可以加入不会改变计算能力的\emph{语法糖}（syntactic sugar）。
+
+\begin{itemize}
+  \item \textbf{GOTO 与循环：}用若干标量编码当前行号，并用 NAND 指令更新
+    行号，就可以实现跳转；循环则由跳回较早的行得到。
+  \item \textbf{多维数组：}通过一个可计算的配对函数
+    $\langle\cdot,\cdot\rangle:\Nat^2\to\Nat$，可将
+    $A[i,j]$ 存为一维数组元素 $A'[\langle i,j\rangle]$。更高维数组同理。
+\end{itemize}
+
+这些写法可能改变运行时间，但不会改变可计算函数的范围。
+
+\section{NAND-RAM}
+
+实际计算机通常允许直接访问给定地址，而不必让读写头逐格移动。随机存取机
+（random-access machine, RAM）正是对此的抽象。
+
+\begin{definition}[NAND-RAM 程序]
+  \label{def:nand-ram}
+  \emph{NAND-RAM} 是在 NAND-TM 基础上加入下列操作得到的编程模型：
+
+  \begin{enumerate}[label=\arabic*.]
+    \item 用有限二进制串表示的整数变量与寄存器；
+    \item 按地址随机读取和写入数组元素；
+    \item 基本的布尔、算术与流程控制指令。
+  \end{enumerate}
+
+  每条指令只操作有限长的数据，并由有限算法给出其语义。
+\end{definition}
+
+\begin{theorem}[NAND-TM 与 NAND-RAM 等价]
+  \label{thm:nand-tm-nand-ram-equivalence}
+  NAND-TM 与 NAND-RAM 能计算完全相同的函数。
+\end{theorem}
+
+\begin{proof}[证明思路]
+  NAND-RAM 可以直接保存 NAND-TM 的标量、数组和下标，并逐条模拟其指令。
+  反方向上，图灵机可在纸带上编码 NAND-RAM 的寄存器与已使用的内存单元；
+  每次随机访问时扫描这份编码，找到相应地址后读取或改写。基本算术和流程控制
+  都能分解为有限的逐位操作。因此 NAND-RAM 可由图灵机模拟，再结合
+  \cref{thm:tm-nand-tm-equivalence} 即得结论。
+\end{proof}
