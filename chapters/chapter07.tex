@@ -292,6 +292,11 @@ $U(\langle m,x\rangle)$ 简写为 $U(m,x)$。
 
 它们都是可计算的，因为只需把 $w$ 或两张转移表填入一个固定的程序模板。
 
+\begin{pseudocode}{参数写入机器 $A_w$（输入 $x$）}
+  \item 保留输入 $x$，并把固定字符串 $w$ 写到工作带上。
+  \item 输出 $\langle w,x\rangle$ 并停机。
+\end{pseudocode}
+
 \begin{example}[自打印图灵机]
   \label{ex:self-printing-tm}
   存在一台图灵机 $R$，它在任意输入上都输出自己的编码
@@ -301,6 +306,12 @@ $U(\langle m,x\rangle)$ 简写为 $U(m,x)$。
 \begin{proof}
   构造机器 $B$：它在输入 $\langle w,x\rangle$ 上输出 $c(q(w),w)$。令
 
+  \begin{pseudocode}{机器 $B$（输入 $\langle w,x\rangle$）}
+    \item 计算 $a\gets q(w)$，即得到 $A_w$ 的编码。
+    \item 计算 $r_w\gets c(a,w)$。
+    \item 输出 $r_w$ 并停机。
+  \end{pseudocode}
+
   \[
     b=\langle B\rangle,
     \qquad
@@ -309,6 +320,11 @@ $U(\langle m,x\rangle)$ 简写为 $U(m,x)$。
 
   并令 $R$ 为编码 $r$ 所表示的机器。$R$ 先运行 $A_b$，把输入 $x$ 变为
   $\langle b,x\rangle$，再运行 $B$，所以
+
+  \begin{pseudocode}{自打印机器 $R$（输入 $x$）}
+    \item 运行 $A_b(x)$，得到 $\langle b,x\rangle$。
+    \item 在该结果上运行 $B$，并原样输出 $B$ 的结果。
+  \end{pseudocode}
 
   \[
     R(x)=c(q(b),b)=r=\langle R\rangle.
@@ -341,6 +357,18 @@ $U(\langle m,x\rangle)$ 简写为 $U(m,x)$。
   $\langle b,x\rangle$，随后 $B_T$ 计算的 $r_b$ 正好等于
   $r=\langle R\rangle$。因此
 
+  \begin{pseudocode}{递归定理中的机器 $B_T$（输入 $\langle w,x\rangle$）}
+    \item 计算 $a\gets q(w)$。
+    \item 计算 $r_w\gets c(a,w)$。
+    \item 模拟 $T(r_w,x)$，并原样输出其结果。
+  \end{pseudocode}
+
+  \begin{pseudocode}{不动点机器 $R$（输入 $x$）}
+    \item 运行 $A_b(x)$，得到 $\langle b,x\rangle$，其中
+      $b=\langle B_T\rangle$。
+    \item 在该结果上运行 $B_T$，并原样输出其结果。
+  \end{pseudocode}
+
   \[
     R(x)=B_T(b,x)=T(\langle R\rangle,x).
   \]
@@ -357,6 +385,14 @@ $U(\langle m,x\rangle)$ 简写为 $U(m,x)$。
       0,&H(m,x)=0.
     \end{cases}
   \]
+
+  等价地，由递归定理得到的自引用机器可写成：
+
+  \begin{pseudocode}{反证机器 $R$（输入 $x$）}
+    \item 取得自己的编码 $m\gets\langle R\rangle$。
+    \item 计算 $h\gets H(m,x)$。
+    \item 若 $h=1$，则永远循环；若 $h=0$，则输出 $0$ 并停机。
+  \end{pseudocode}
 
   由 \cref{thm:recursion-theorem}，存在 $R$ 满足
   $R(x)=T(\langle R\rangle,x)$。若 $H(\langle R\rangle,x)=1$，则 $R(x)$
@@ -408,6 +444,13 @@ $U(\langle m,x\rangle)$ 简写为 $U(m,x)$。
   \cref{thm:recursion-theorem}，存在 $R$ 使得
   $R(x)=T(\langle R\rangle,x)$。设搜索得到 $s$，则
 
+  \begin{pseudocode}{识别最小机器的反证机器 $R$（输入 $x$）}
+    \item 取得自己的编码 $m\gets\langle R\rangle$。
+    \item 按长度枚举 $s\in\bitsstar$，直到
+      $\operatorname{MIN}(s)=1$ 且 $\card{s}>\card{m}$。
+    \item 在 $x$ 上模拟 $M_s$，并原样输出其结果。
+  \end{pseudocode}
+
   \[
     R\simeq M_s,
     \qquad
@@ -432,6 +475,12 @@ $U(\langle m,x\rangle)$ 简写为 $U(m,x)$。
 \begin{proof}
   令 $T(m,x)$ 模拟编码为 $f(m)$ 的机器在 $x$ 上的计算。对 $T$ 应用
   \cref{thm:recursion-theorem} 即得所需的 $F$。
+
+  \begin{pseudocode}{不动点机器 $F$（输入 $x$）}
+    \item 取得自己的编码 $e\gets\langle F\rangle$。
+    \item 计算 $m\gets f(e)$。
+    \item 在 $x$ 上模拟 $M_m$，并原样输出其结果。
+  \end{pseudocode}
 \end{proof}
 
 \section{有效证明系统与不完备性}
@@ -480,6 +529,14 @@ $U(\langle m,x\rangle)$ 简写为 $U(m,x)$。
     \item 枚举所有 $p\in\bitsstar$ 并计算 $V(n_M,p)$；若某次得到 $1$，则输出
       $0$。
   \end{enumerate}
+
+  \begin{pseudocode}{由完备证明系统构造的停机判定机 $D$（输入 $m$）}
+    \item 若 $m$ 不是合法图灵机编码，则输出 $0$；否则解码得到 $M$。
+    \item 交错运行两条分支：第一条逐步模拟 $M(0)$；第二条枚举
+      $p\in\bitsstar$ 并计算 $V(n_M,p)$。
+    \item 若第一条分支发现 $M(0)$ 停机，则输出 $1$；若第二条分支发现
+      $V(n_M,p)=1$，则输出 $0$。
+  \end{pseudocode}
 
   若 $M(0)$ 停机，第一项计算会结束；若它不停机，则 $n_M\in\mathcal T$，完备性
   保证第二项最终找到证明。可靠性保证两项不会给出冲突的答案。因此这个过程计算
@@ -544,6 +601,14 @@ $U(\langle m,x\rangle)$ 简写为 $U(m,x)$。
   若 $\operatorname{EVAL}$ 可计算，则由
   \cref{lem:arithmetization-of-computation} 可得
 
+  \begin{pseudocode}{利用 $\operatorname{EVAL}$ 判定停机的机器 $D_0$
+      （输入 $m$）}
+    \item 若 $m$ 不是合法图灵机编码，则输出 $0$。
+    \item 由 \cref{lem:arithmetization-of-computation} 计算
+      $\varphi_{M_m}$。
+    \item 输出 $\operatorname{EVAL}(\varphi_{M_m})$。
+  \end{pseudocode}
+
   \[
     \operatorname{HALT}_0(\langle M\rangle)
       =\operatorname{EVAL}(\varphi_M),
@@ -562,4 +627,13 @@ $U(\langle m,x\rangle)$ 简写为 $U(m,x)$。
   $\varphi$ 与 $\lnot\varphi$ 的所有候选证明，并用 $V$ 验证。二者恰有一个为真；
   完备性保证其证明最终被找到，可靠性保证假命题不会被证明。因此我们可以判定
   $\varphi$ 的真值，这与 \cref{thm:qis-evaluation-uncomputable} 矛盾。
+
+  \begin{pseudocode}{由完备证明系统构造的 QIS 判定机 $D_{\mathrm{QIS}}$
+      （输入 $\varphi$）}
+    \item 若 $\varphi$ 不是合法 QIS，则输出 $0$。
+    \item 交错枚举 $\varphi$ 与 $\lnot\varphi$ 的候选证明 $p$，并计算相应的
+      $V(\varphi,p)$ 与 $V(\lnot\varphi,p)$。
+    \item 若找到 $\varphi$ 的证明，则输出 $1$；若找到 $\lnot\varphi$ 的证明，
+      则输出 $0$。
+  \end{pseudocode}
 \end{proof}
