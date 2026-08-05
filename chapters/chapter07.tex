@@ -275,3 +275,291 @@ $U(\langle m,x\rangle)$ 简写为 $U(m,x)$。
   \cref{thm:halting-problem-uncomputable} 以及
   \cref{cor:reduction-transfers-uncomputability} 可知 $\chi_P$ 不可计算。
 \end{proof}
+
+\lecture
+\label{lec:recursion-and-incompleteness}
+
+\section{自引用与递归定理}
+
+程序可以把程序编码作为普通字符串处理。固定上一节的图灵机编码后，存在以下
+两个可计算的代码生成函数：
+
+\begin{itemize}
+  \item $q(w)$ 返回机器 $A_w$ 的编码；$A_w$ 在输入 $x$ 上输出二元组
+    $\langle w,x\rangle$；
+  \item $c(a,b)$ 返回顺次运行编码为 $a,b$ 的两台机器所得机器的编码。
+\end{itemize}
+
+它们都是可计算的，因为只需把 $w$ 或两张转移表填入一个固定的程序模板。
+
+\begin{example}[自打印图灵机]
+  \label{ex:self-printing-tm}
+  存在一台图灵机 $R$，它在任意输入上都输出自己的编码
+  $\langle R\rangle$。
+\end{example}
+
+\begin{proof}
+  构造机器 $B$：它在输入 $\langle w,x\rangle$ 上输出 $c(q(w),w)$。令
+
+  \[
+    b=\langle B\rangle,
+    \qquad
+    r=c(q(b),b),
+  \]
+
+  并令 $R$ 为编码 $r$ 所表示的机器。$R$ 先运行 $A_b$，把输入 $x$ 变为
+  $\langle b,x\rangle$，再运行 $B$，所以
+
+  \[
+    R(x)=c(q(b),b)=r=\langle R\rangle.
+  \]
+\end{proof}
+
+同一个技巧允许程序在运行时取得自己的编码。
+
+\begin{theorem}[递归定理]
+  \label{thm:recursion-theorem}
+  设图灵机 $T$ 接受两个输入。存在图灵机 $R$，使得对每个
+  $x\in\bitsstar$，
+
+  \[
+    R(x)=T(\langle R\rangle,x).
+  \]
+
+  等式按偏函数理解：一侧不停机当且仅当另一侧不停机。
+\end{theorem}
+
+\begin{proof}
+  由 $T$ 构造机器 $B_T$。它在输入 $\langle w,x\rangle$ 上先计算
+
+  \[
+    r_w=c(q(w),w),
+  \]
+
+  再运行 $T(r_w,x)$。令 $b=\langle B_T\rangle$，并令 $R$ 是编码
+  $r=c(q(b),b)$ 所表示的机器。对任意 $x$，第一阶段 $A_b$ 产生
+  $\langle b,x\rangle$，随后 $B_T$ 计算的 $r_b$ 正好等于
+  $r=\langle R\rangle$。因此
+
+  \[
+    R(x)=B_T(b,x)=T(\langle R\rangle,x).
+  \]
+\end{proof}
+
+\begin{example}[用递归定理重证停机问题]
+  \label{ex:halting-via-recursion-theorem}
+  假设存在计算 $\operatorname{HALT}$ 的机器 $H$。构造机器 $T$，使得
+
+  \[
+    T(m,x)=
+    \begin{cases}
+      \text{永远循环},&H(m,x)=1,\\
+      0,&H(m,x)=0.
+    \end{cases}
+  \]
+
+  由 \cref{thm:recursion-theorem}，存在 $R$ 满足
+  $R(x)=T(\langle R\rangle,x)$。若 $H(\langle R\rangle,x)=1$，则 $R(x)$
+  不停机；若其值为 $0$，则 $R(x)$ 停机。两种情形都与 $H$ 的输出矛盾，故
+  $\operatorname{HALT}$ 不可计算。
+\end{example}
+
+\subsection{最小机器与不动点}
+
+记 $M\simeq N$ 表示两台机器计算同一个偏函数。称机器 $M$ 是\emph{最小的}
+（minimal），如果
+
+\[
+  M'\simeq M
+  \quad\Longrightarrow\quad
+  \card{\langle M'\rangle}\geq\card{\langle M\rangle}.
+\]
+
+定义
+
+\[
+  \operatorname{MIN}(m)=
+  \begin{cases}
+    1,&m=\langle M\rangle\text{ 且 }M\text{ 是最小机器},\\
+    0,&\text{其他情形}.
+  \end{cases}
+\]
+
+\begin{example}[识别最小机器]
+  \label{ex:minimal-tm-uncomputable}
+  函数 $\operatorname{MIN}$ 不可计算。
+\end{example}
+
+\begin{proof}
+  假设 $\operatorname{MIN}$ 可计算。最小机器的编码长度没有上界：函数
+  $x\mapsto 0^n$ 随 $n$ 改变而彼此不同，而长度不超过任意给定常数的编码只有
+  有限多个。
+
+  构造机器 $T$。在输入 $\langle m,x\rangle$ 上，它按长度枚举字符串 $s$，直至
+  找到
+
+  \[
+    \operatorname{MIN}(s)=1
+    \quad\text{且}\quad
+    \card{s}>\card{m},
+  \]
+
+  然后在 $x$ 上模拟编码为 $s$ 的机器。由无界性，这个搜索一定结束。根据
+  \cref{thm:recursion-theorem}，存在 $R$ 使得
+  $R(x)=T(\langle R\rangle,x)$。设搜索得到 $s$，则
+
+  \[
+    R\simeq M_s,
+    \qquad
+    \card{\langle R\rangle}<\card{s}.
+  \]
+
+  这与 $M_s$ 是最小机器矛盾。
+\end{proof}
+
+递归定理也常写成下面的不动点（fixed point）形式。
+
+\begin{corollary}[不动点定理]
+  \label{cor:fixed-point-theorem}
+  设 $f:\bitsstar\to\bitsstar$ 是可计算函数，并且把合法图灵机编码映射为合法
+  图灵机编码。则存在图灵机 $F$，使得
+
+  \[
+    F\simeq M_{f(\langle F\rangle)}.
+  \]
+\end{corollary}
+
+\begin{proof}
+  令 $T(m,x)$ 模拟编码为 $f(m)$ 的机器在 $x$ 上的计算。对 $T$ 应用
+  \cref{thm:recursion-theorem} 即得所需的 $F$。
+\end{proof}
+
+\section{有效证明系统与不完备性}
+
+\begin{definition}[有效证明系统]
+  \label{def:effective-proof-system}
+  设 $\mathcal T\subseteq\bitsstar$ 是一组真命题的编码。它的一个\emph{有效
+  证明系统}（effective proof system）是图灵机
+
+  \[
+    V:\bitsstar\times\bitsstar\to\bits,
+  \]
+
+  其中 $V(x,p)=1$ 表示 $p$ 是命题 $x$ 的证明，并满足：
+
+  \begin{enumerate}[label=\arabic*.]
+    \item \textbf{有效性（effectiveness）：}对每个 $x,p$，$V(x,p)$ 都停机；
+    \item \textbf{可靠性（soundness）：}若 $x\notin\mathcal T$，则对每个 $p$
+      都有 $V(x,p)=0$。
+  \end{enumerate}
+
+  如果对每个 $x\in\mathcal T$ 都存在 $p$ 使 $V(x,p)=1$，则称 $V$ 是
+  \emph{完备的}（complete）。
+\end{definition}
+
+\begin{theorem}[抽象不完备性]
+  \label{thm:abstract-incompleteness}
+  存在一组真命题 $\mathcal T$，它没有可靠且完备的有效证明系统。
+\end{theorem}
+
+\begin{proof}
+  对每台图灵机 $M$，考虑两个命题
+
+  \[
+    h_M=\text{“$M$ 在输入 $0$ 上停机”},
+    \qquad
+    n_M=\text{“$M$ 在输入 $0$ 上不停机”},
+  \]
+
+  并令 $\mathcal T$ 包含其中所有真命题。假设 $V$ 是可靠且完备的有效证明系统。
+  给定字符串 $m$，若它不是合法机器编码就输出 $0$；否则写成
+  $m=\langle M\rangle$，并同时进行以下两项计算：
+
+  \begin{enumerate}[label=\arabic*.]
+    \item 逐步运行 $M(0)$；若它停机，则输出 $1$；
+    \item 枚举所有 $p\in\bitsstar$ 并计算 $V(n_M,p)$；若某次得到 $1$，则输出
+      $0$。
+  \end{enumerate}
+
+  若 $M(0)$ 停机，第一项计算会结束；若它不停机，则 $n_M\in\mathcal T$，完备性
+  保证第二项最终找到证明。可靠性保证两项不会给出冲突的答案。因此这个过程计算
+  $\operatorname{HALT}_0$，与 \cref{thm:halt-on-zero-uncomputable} 矛盾。
+\end{proof}
+
+这个结论给出了哥德尔不完备现象的计算核心。为了把它落实到算术语句，下面固定
+一种具体的形式语言。
+
+\subsection{量化整数语句}
+
+\begin{definition}[量化整数语句]
+  \label{def:quantified-integer-statement}
+  \emph{量化整数语句}（quantified integer statement, QIS）是由下列成分组成的
+  闭公式：
+
+  \begin{itemize}
+    \item 非负整数常数、变量以及运算 $+$、$\times$ 和关系 $=$；
+    \item 逻辑联结词 $\land,\lor,\lnot$；
+    \item 量词 $\forall,\exists$。
+  \end{itemize}
+
+  本节约定量词的论域为 $\Nat$。闭公式没有自由变量，因而在标准自然数结构中
+  具有确定的真值。
+\end{definition}
+
+对非法编码约定结果为 $0$，并定义
+
+\[
+  \operatorname{EVAL}(\varphi)=
+  \begin{cases}
+    1,&\varphi\text{ 是真的 QIS},\\
+    0,&\varphi\text{ 是假的 QIS 或不是合法 QIS}.
+  \end{cases}
+\]
+
+\begin{lemma}[计算历史的算术化]
+  \label{lem:arithmetization-of-computation}
+  存在一个可计算变换，把任意图灵机编码 $\langle M\rangle$ 映射为 QIS
+  $\varphi_M$，使得
+
+  \[
+    \varphi_M\text{ 为真}
+    \quad\Longleftrightarrow\quad
+    M\text{ 在输入 }0\text{ 上停机}.
+  \]
+\end{lemma}
+
+\begin{proof}[证明思路]
+  用自然数编码状态、纸带符号和有限格局，再用一个自然数编码有限格局序列。
+  “后一格局由前一格局经一条转移得到”是有限的算术条件；序列取位、长度和相邻
+  关系也可用加法、乘法和量词表达。因此可以有效写出一个公式，断言“存在一个从
+  $M$ 的初始格局开始、以停机格局结束的有限合法计算历史”。
+\end{proof}
+
+\begin{theorem}[QIS 真值不可判定]
+  \label{thm:qis-evaluation-uncomputable}
+  函数 $\operatorname{EVAL}$ 不可计算。
+\end{theorem}
+
+\begin{proof}
+  若 $\operatorname{EVAL}$ 可计算，则由
+  \cref{lem:arithmetization-of-computation} 可得
+
+  \[
+    \operatorname{HALT}_0(\langle M\rangle)
+      =\operatorname{EVAL}(\varphi_M),
+  \]
+
+  这与 \cref{thm:halt-on-zero-uncomputable} 矛盾。
+\end{proof}
+
+\begin{theorem}[量化整数真理的不完备性]
+  \label{thm:qis-incompleteness}
+  所有真 QIS 构成的集合没有可靠且完备的有效证明系统。
+\end{theorem}
+
+\begin{proof}
+  假设存在这样的验证器 $V$。给定合法 QIS $\varphi$，同时枚举
+  $\varphi$ 与 $\lnot\varphi$ 的所有候选证明，并用 $V$ 验证。二者恰有一个为真；
+  完备性保证其证明最终被找到，可靠性保证假命题不会被证明。因此我们可以判定
+  $\varphi$ 的真值，这与 \cref{thm:qis-evaluation-uncomputable} 矛盾。
+\end{proof}

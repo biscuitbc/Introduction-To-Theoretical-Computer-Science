@@ -1,6 +1,6 @@
 # 理论计算机科学导引
 
-这是手写讲义的 LaTeX 电子化版本。目前收录第 1–7 章以及 Lecture 1–9。
+这是手写讲义的 LaTeX 电子化版本。目前收录第 1–7 章以及 Lecture 1–10。
 Chapter 与 Lecture 分别编号；一个 Chapter 可以包含多次 Lecture，
 一次 Lecture 也可以跨越多个 Chapter。
 
@@ -21,6 +21,7 @@ Chapter 与 Lecture 分别编号；一个 Chapter 可以包含多次 Lecture，
 - [Lecture 8 手写原稿](./TCS%20lec8.pdf)
 - [Lecture 9 手写原稿](./TCS%20lec9.pdf)
 - [第 7 章 LaTeX 源码](./chapters/chapter07.tex)
+- [Lecture 10 手写原稿](./TCS%20lec10.pdf)
 
 ## 编译
 
