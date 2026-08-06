@@ -352,6 +352,24 @@ $U(\langle m,x\rangle)$ 简写为 $U(m,x)$。
 \end{example}
 
 \begin{proof}
+  \textbf{构造思路.}
+  若直接要求一台机器把自己的编码写在程序里，就会产生循环依赖。为此把目标
+  机器拆成先后运行的两部分 $R=A_b\to B$。其中 $b=\langle B\rangle$，而
+  $A_b$ 只需硬编码 $b$，不必预先知道 $\langle R\rangle$。运行时，$A_b$
+  先把 $b$ 连同原输入 $x$ 写成 $\langle b,x\rangle$；$B$ 再由 $b$ 计算
+  $q(b)=\langle A_b\rangle$，并把两部分的编码组合起来：
+
+  \[
+    \underbrace{q(b)}_{\langle A_b\rangle},
+    \quad
+    \underbrace{b}_{\langle B\rangle}
+    \quad\xrightarrow{\ c\ }\quad
+    c(q(b),b)=\langle A_b\to B\rangle=\langle R\rangle.
+  \]
+
+  这正是笔记中“$A$ 写出 $\langle B\rangle$，$B$ 再生成
+  $\langle A\rangle$ 并与 $\langle B\rangle$ 组合”的想法。
+
   构造机器 $B$：它在输入 $\langle w,x\rangle$ 上输出 $c(q(w),w)$。令
 
   \begin{pseudocode}{Machine $B$ (input $\langle w,x\rangle$)}
@@ -377,6 +395,11 @@ $U(\langle m,x\rangle)$ 简写为 $U(m,x)$。
   \[
     R(x)=c(q(b),b)=r=\langle R\rangle.
   \]
+
+  最后一个等号并非额外假设：$R$ 按构造正是编码为 $q(b)$ 的 $A_b$ 与编码为
+  $b$ 的 $B$ 的串联，所以代码生成函数 $c$ 保证
+  $r=c(q(b),b)$ 恰好就是 $\langle R\rangle$。因此 $R$ 输出的确实是自己的
+  编码。
 \end{proof}
 
 同一个技巧允许程序在运行时取得自己的编码。
