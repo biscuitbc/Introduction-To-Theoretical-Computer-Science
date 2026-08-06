@@ -404,7 +404,7 @@ $U(\langle m,x\rangle)$ 简写为 $U(m,x)$。
 
 同一个技巧允许程序在运行时取得自己的编码。
 
-\begin{theorem}[递归定理]
+\begin{theorem}[递归定理（Recursion Theorem）]
   \label{thm:recursion-theorem}
   设图灵机 $T$ 接受两个输入。存在图灵机 $R$，使得对每个
   $x\in\bitsstar$，
@@ -417,6 +417,27 @@ $U(\langle m,x\rangle)$ 简写为 $U(m,x)$。
 \end{theorem}
 
 \begin{proof}
+  \textbf{构造思路.}
+  递归定理可以看成把自打印机器产生的自身编码直接交给 $T$。按照笔记中的
+  分解，令
+
+  \[
+    R=A\to B\to T.
+  \]
+
+  $A$ 只需硬编码 $\langle B\rangle$ 与 $\langle T\rangle$，并保留原输入
+  $x$；$B$ 再由这些编码生成 $\langle A\rangle$，并重新排列纸带，使其内容
+  变为
+
+  \[
+    \underbrace{\langle A\rangle\langle B\rangle
+      \langle T\rangle}_{\langle R\rangle},\ x.
+  \]
+
+  最后的 $T$ 因而收到的恰是 $(\langle R\rangle,x)$，输出
+  $T(\langle R\rangle,x)$。下面的形式化构造把笔记中的 $B\to T$ 合并为
+  一台机器 $B_T$。
+
   由 $T$ 构造机器 $B_T$。它在输入 $\langle w,x\rangle$ 上先计算
 
   \[
