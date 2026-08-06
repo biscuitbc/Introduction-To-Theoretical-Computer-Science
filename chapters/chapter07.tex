@@ -111,6 +111,13 @@ $U(\langle m,x\rangle)$ 简写为 $U(m,x)$。
   \cref{thm:universal-turing-machine} 的方法逐步模拟 $M_m(m)$ 直至其停机。
   若模拟得到的输出恰为 $1$，就输出 $0$；否则输出 $1$。
 
+  \begin{pseudocode}{Diagonal machine $D$ (input $m$)}
+    \item Compute $h\gets H(m,m)$.
+    \item If $h=0$, output $1$ and halt.
+    \item Otherwise, simulate $M_m(m)$ until it halts.
+    \item If the simulation outputs $1$, output $0$; otherwise, output $1$.
+  \end{pseudocode}
+
   当 $H(m,m)=1$ 时，被模拟的机器必定停机，所以 $D$ 在每个输入上都停机。
   对照 \cref{eq:diagonal-uncomputable-function} 可知 $D$ 恰好计算 $F^*$，这与
   \cref{thm:uncomputable-function-exists} 矛盾。
