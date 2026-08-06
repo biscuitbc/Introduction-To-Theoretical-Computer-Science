@@ -101,8 +101,14 @@ $T:\Nat\to\Gamma$，其初始内容为
     u\gets\operatorname{NAND}(v,w),
   \]
 
-  其中变量可以是标量，也可以是当前下标处的数组元素 $A[i]$。每轮执行完这些
-  指令后，程序执行
+  其中变量可以是标量，也可以是当前下标处的数组元素 $A[i]$。
+
+  \textbf{提醒.}
+  普通指令只能访问当前下标 $i$ 处的数组元素 $A[i]$，不能用 $A[i+1]$
+  直接访问下一位置。若要访问下一位置，必须先通过下述
+  $\operatorname{MODANDJUMP}$ 更新 $i$，再在下一轮访问。
+
+  每轮执行完这些指令后，程序执行
 
   \[
     \operatorname{MODANDJUMP}(a,b),
@@ -133,6 +139,15 @@ $10$ 这类具有不同长度的输入。
   图灵机与 NAND-TM 能计算完全相同的函数。
 \end{theorem}
 
+\textbf{直观想法.}
+两个模型中的三部分可以逐一对应：
+
+\[
+  \text{状态}\longleftrightarrow\text{布尔标量},\qquad
+  \text{纸带}\longleftrightarrow\text{布尔数组},\qquad
+  \text{读写头位置}\longleftrightarrow i.
+\]
+
 \begin{proof}
   先用 NAND-TM 模拟图灵机 $M=(K,\Gamma,s,\delta)$。用
 
@@ -142,8 +157,9 @@ $10$ 这类具有不同长度的输入。
     \ell=\lceil\log_2\card\Gamma\rceil
   \]
 
-  个比特分别编码当前状态和一个纸带符号。状态编码存入 $k$ 个标量；纸带每个
-  位置的符号编码，按位存入 $\ell$ 个布尔数组。下标 $i$ 就是读写头的位置。
+  个比特分别编码当前状态和一个纸带符号。因此，$\card K$ 个状态只需用
+  $k=\lceil\log_2\card K\rceil$ 个布尔标量表示；纸带每个位置的符号编码则
+  按位存入 $\ell$ 个布尔数组。下标 $i$ 就是读写头的位置。
   再用两个比特编码移动方向：
 
   \[
@@ -153,15 +169,28 @@ $10$ 这类具有不同长度的输入。
     \quad H\leftrightarrow 00.
   \]
 
-  转移函数 $\delta$ 在有限集合上，因此其编码是一个有限布尔函数，可以由
-  NAND 电路实现。每轮指令先计算新状态和新纸带符号，再把方向编码交给
-  $\operatorname{MODANDJUMP}$；故一轮恰好模拟图灵机的一步。
+  转移函数 $\delta$ 因而可编码为有限布尔函数
 
-  反过来，考虑一个有 $k$ 个标量、$\ell$ 个数组的 NAND-TM 程序。图灵机在
-  有限状态中记录 $k$ 个标量的取值以及当前执行到的指令；把同一下标处的
-  $\ell$ 个数组元素合并成纸带字母 $(A_1[i],\ldots,A_\ell[i])$。每条 NAND
-  指令和 $\operatorname{MODANDJUMP}$ 的四种情形都是有限转移，因而均可由
-  图灵机的若干步完成。这样图灵机便可逐轮模拟该程序。
+  \[
+    \widehat\delta:\bits^{k+\ell}\longrightarrow
+    \bits^{k+\ell+2}.
+  \]
+
+  它可以由 NAND 电路实现。每轮先计算新状态、新纸带符号和移动方向，再把
+  方向编码交给 $\operatorname{MODANDJUMP}$，便模拟了图灵机的一步。
+
+  反过来，考虑一个有 $k$ 个标量、$\ell$ 个数组的 NAND-TM 程序。把每种标量
+  取值 $a\in\bits^k$ 作为图灵机的一个状态，便得到 $2^k$ 个状态；把同一下标
+  处的数组元素
+
+  \[
+    (A_1[i],\ldots,A_\ell[i])\in\bits^\ell
+  \]
+
+  作为一个纸带字母，便得到大小为 $2^\ell$ 的纸带字母表。程序的固定指令块
+  把当前的 $k+\ell$ 个比特唯一地映到新的 $k+\ell$ 个比特和两个方向比特，
+  所以它可直接写成图灵机的有限转移函数。于是 NAND-TM 的一轮对应图灵机的
+  一步。
 \end{proof}
 
 \subsection{NAND-TM 程序中的语法糖}
