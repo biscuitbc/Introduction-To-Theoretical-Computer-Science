@@ -291,16 +291,23 @@ $U(\langle m,x\rangle)$ 简写为 $U(m,x)$。
 \end{theorem}
 
 \begin{proof}
-  令 $M_\infty$ 为在每个输入上都永远循环的机器。必要时把 $P$ 换成其补性质
+  令 $M_\infty$ 为在每个输入上都永远循环的机器。
+
+  \begin{pseudocode}{Diverging machine $M_\infty$ (input $y$)}
+    \item Loop forever.
+  \end{pseudocode}
+
+  必要时把 $P$ 换成其补性质
   $1-P$；判定二者是等价的。因此不妨设 $P(M_\infty)=0$。由非平凡性可取一台
   机器 $M_{\mathrm{yes}}$，使得 $P(M_{\mathrm{yes}})=1$。
 
   给定 $m,x$，有效构造机器 $N_{m,x}$。它在输入 $y$ 上执行：
 
-  \begin{enumerate}[label=\arabic*.]
-    \item 若 $m$ 非法则永远循环；否则模拟 $M_m(x)$；
-    \item 上一步停机后，模拟 $M_{\mathrm{yes}}(y)$ 并原样输出其结果。
-  \end{enumerate}
+  \begin{pseudocode}{Reduction machine $N_{m,x}$ (input $y$)}
+    \item If $m$ is not a valid machine encoding, loop forever.
+    \item Simulate $M_m(x)$ until it halts.
+    \item Simulate $M_{\mathrm{yes}}(y)$ and output its result.
+  \end{pseudocode}
 
   若 $\operatorname{HALT}(m,x)=0$，则 $N_{m,x}$ 与 $M_\infty$ 计算同一个处处
   无定义的偏函数，所以 $P(N_{m,x})=0$。若
