@@ -1,0 +1,313 @@
+\chapter{运行时间}
+\label{chap:running-time}
+
+\lecture
+\label{lec:running-time}
+
+上一章只区分一个函数是否可计算。本章进一步研究计算需要多少时间，并比较
+图灵机、NAND-RAM 与布尔电路所得到的复杂度类。本章中 $\log$ 均以 $2$ 为底。
+
+\section{时间复杂度类}
+
+\begin{definition}[图灵机的运行时间]
+  \label{def:tm-running-time}
+  设 $T:\Nat\to\Nat$。若存在 $n_0$，使得对所有 $n\geq n_0$ 和
+  $x\in\bits^n$，图灵机 $M$ 都在至多 $T(n)$ 步内停机，则称 $M$ 的
+  \emph{运行时间}（running time）至多为 $T(n)$。
+\end{definition}
+
+\begin{definition}[图灵机时间类]
+  \label{def:tm-time-class}
+  记
+
+  \[
+    \operatorname{TIME}_{\mathrm{TM}}(T(n))
+  \]
+
+  为所有满足下列条件的布尔函数 $F:\bitsstar\to\bits$ 的集合：存在一台
+  运行时间至多为 $T(n)$ 的图灵机，在每个输入 $x$ 上输出 $F(x)$。
+\end{definition}
+
+例如，当 $n$ 足够大时 $10n^3\leq 2^n$，所以
+
+\[
+  \operatorname{TIME}_{\mathrm{TM}}(10n^3)
+  \subseteq
+  \operatorname{TIME}_{\mathrm{TM}}(2^n).
+\]
+
+\begin{definition}[多项式时间与指数时间]
+  \label{def:p-and-exp}
+  定义\emph{多项式时间}（polynomial time）与\emph{指数时间}
+  （exponential time）复杂度类
+
+  \[
+    \mathsf P
+      =\bigcup_{c\geq 1}\operatorname{TIME}_{\mathrm{TM}}(n^c),
+    \qquad
+    \mathsf{EXP}
+      =\bigcup_{c\geq 1}\operatorname{TIME}_{\mathrm{TM}}(2^{n^c}).
+  \]
+\end{definition}
+
+显然 $\mathsf P\subseteq\mathsf{EXP}$。本章稍后会证明这个包含关系是严格的。
+
+\subsection{NAND-RAM 的运行时间}
+
+\begin{definition}[NAND-RAM 的运行时间]
+  \label{def:ram-running-time}
+  设 $T:\Nat\to\Nat$。若存在 $n_0$，使得对所有 $n\geq n_0$ 和
+  $x\in\bits^n$，NAND-RAM 程序 $P$ 都在执行至多 $T(n)$ 行后停机，则称
+  $P$ 的运行时间至多为 $T(n)$。
+
+  $\operatorname{TIME}_{\mathrm{RAM}}(T(n))$ 表示所有能由这种程序计算的
+  布尔函数 $F:\bitsstar\to\bits$。
+\end{definition}
+
+计算能力相同并不意味着运行时间完全相同，但两个模型之间只有多项式开销。
+
+\begin{theorem}[图灵机与 NAND-RAM 的时间模拟]
+  \label{thm:tm-ram-time-simulation}
+  存在绝对常数 $C>0$，使得对每个满足 $T(n)\geq n$ 的函数 $T$，都有
+
+  \[
+    \operatorname{TIME}_{\mathrm{TM}}(T(n))
+    \subseteq
+    \operatorname{TIME}_{\mathrm{RAM}}(10T(n))
+    \subseteq
+    \operatorname{TIME}_{\mathrm{TM}}(C T(n)^4).
+  \]
+\end{theorem}
+
+\begin{proof}[证明思路]
+  NAND-RAM 用数组保存纸带，并用一个整数记录读写头位置；一次图灵机转移可由
+  常数行程序模拟。反过来，图灵机把 NAND-RAM 已使用的寄存器和内存单元编码
+  在纸带上。若程序运行 $t$ 行，则至多需要处理 $O(t)$ 个已访问位置；逐条扫描、
+  更新并执行有限位运算，可把总模拟时间控制在 $O(t^4)$。当 $T(n)\geq n$ 且
+  $n$ 足够大时，两个方向的固定开销分别由常数 $10$ 与 $C$ 统一控制。
+\end{proof}
+
+因此用 NAND-RAM 定义 $\mathsf P$ 与 $\mathsf{EXP}$ 会得到相同的类：
+
+\[
+  \mathsf P
+    =\bigcup_{c\geq 1}\operatorname{TIME}_{\mathrm{RAM}}(n^c),
+  \qquad
+  \mathsf{EXP}
+    =\bigcup_{c\geq 1}\operatorname{TIME}_{\mathrm{RAM}}(2^{n^c}).
+\]
+
+\section{时间层次定理}
+
+为了执行有时间限制的通用模拟，需要能够在相应时间内算出时间界本身。
+
+\begin{definition}[良好时间界]
+  \label{def:nice-time-bound}
+  称函数 $T:\Nat\to\Nat$ 是\emph{良好的}（nice），如果：
+
+  \begin{enumerate}[label=\arabic*.]
+    \item 对所有 $n$，都有 $T(n)\geq n$；
+    \item $T$ 单调不减；
+    \item 给定一元输入 $1^n$，存在 NAND-RAM 程序能在至多 $T(n)$ 行内输出
+      $T(n)$ 的二进制表示。
+  \end{enumerate}
+
+  第三项通常称为\emph{时间可构造性}（time constructibility）。
+\end{definition}
+
+\begin{theorem}[时间层次定理]
+  \label{thm:time-hierarchy}
+  对每个良好函数 $T:\Nat\to\Nat$，都存在布尔函数
+  $F:\bitsstar\to\bits$，使得
+
+  \[
+    F\in
+    \operatorname{TIME}_{\mathrm{RAM}}(T(n)\log n)
+    \setminus
+    \operatorname{TIME}_{\mathrm{RAM}}(T(n)).
+  \]
+\end{theorem}
+
+\begin{proof}
+  对双输入程序，约定输入长度为两部分长度之和。先构造一个带时间限制的停机
+  函数。对足够长的 $x$，定义
+
+  \[
+    \operatorname{HALT}_T(p,x)=1
+  \]
+
+  当且仅当以下条件同时成立：$p$ 是合法 NAND-RAM 程序编码，
+  $\card{p}\leq\log\log\card{x}$，并且程序 $P_p$ 在输入 $x$ 上于
+  $100T(\card{p}+\card{x})$ 行内停机；其他情形令其为 $0$。有限个较短输入
+  上的取值任意固定。
+
+  \begin{pseudocode}{Bounded halting algorithm $H_T$ (input $(p,x)$)}
+    \item If $p$ is invalid or $\card{p}>\log\log\card{x}$, return $0$.
+    \item Compute $t\gets T(\card{p}+\card{x})$.
+    \item Simulate $P_p(x)$ for at most $100t$ instructions.
+    \item Return $1$ if the simulation halts, and return $0$ otherwise.
+  \end{pseudocode}
+
+  固定一个通用 NAND-RAM 模拟器。存在常数 $a,b$，使它模拟编码为 $p$ 的程序
+  运行 $t$ 行至多需要 $a\card{p}^{b}t$ 行。记输入总长度为
+  $N=\card{p}+\card{x}$。在未立即返回的情形中，
+
+  \[
+    100a\card{p}^{b}T(N)
+      \leq 100a(\log\log N)^bT(N)
+      \leq T(N)\log N
+  \]
+
+  对足够大的 $N$ 成立；计算 $T(N)$ 所需时间也由后一项吸收。因此
+
+  \[
+    \operatorname{HALT}_T
+      \in\operatorname{TIME}_{\mathrm{RAM}}(T(n)\log n).
+  \]
+
+  下面证明它不属于 $\operatorname{TIME}_{\mathrm{RAM}}(T(n))$。反设程序 $H$
+  在时间 $T(n)$ 内计算 $\operatorname{HALT}_T$。构造程序 $Q$：
+
+  \begin{pseudocode}{Diagonal program $Q$ (input $z$)}
+    \item Parse $z$ as $\langle p,1^m\rangle$. If parsing fails, $p$ is
+      invalid, or $\card{p}\geq 0.1\log\log m$, return $0$.
+    \item Compute $b\gets H(p,z)$.
+    \item If $b=1$, loop forever.
+    \item Otherwise, halt and return $0$.
+  \end{pseudocode}
+
+  这里使用自定界配对编码；解析输入只需线性时间。令 $q=\langle Q\rangle$，并取
+
+  \[
+    m=2^{2^{100\card{q}}},
+    \qquad
+    z=\langle q,1^m\rangle.
+  \]
+
+  此时 $\card{q}<0.1\log\log m$。由 $T(n)\geq n$ 及 $H$ 的时间界，若
+  $Q(z)$ 停机，其总运行时间至多为
+
+  \[
+    2T(\card{q}+\card{z})
+      <100T(\card{q}+\card{z}).
+  \]
+
+  若 $Q(z)$ 停机，则 $\operatorname{HALT}_T(q,z)=1$，第 3 行又迫使它永远
+  循环；若 $Q(z)$ 不停机，则 $\operatorname{HALT}_T(q,z)=0$，第 4 行又迫使
+  它停机。两种情形均矛盾，所以所设的 $H$ 不存在。
+\end{proof}
+
+\begin{corollary}
+  \label{cor:p-strict-exp}
+  $\mathsf P\subsetneq\mathsf{EXP}$。
+\end{corollary}
+
+\begin{proof}
+  取 $T(n)=2^n$。由 \cref{thm:time-hierarchy}，存在
+
+  \[
+    F\in\operatorname{TIME}_{\mathrm{RAM}}(2^n\log n)
+      \setminus\operatorname{TIME}_{\mathrm{RAM}}(2^n).
+  \]
+
+  对任意常数 $c$，当 $n$ 足够大时 $n^c\leq 2^n$，故
+  $\mathsf P\subseteq\operatorname{TIME}_{\mathrm{RAM}}(2^n)$；另一方面
+  $2^n\log n\leq 2^{n^2}$，所以 $F\in\mathsf{EXP}$。因此
+  $F\in\mathsf{EXP}\setminus\mathsf P$。
+\end{proof}
+
+\section{线路规模与非一致计算}
+
+时间有界的程序可以针对每个输入长度展开成一张布尔电路。
+
+\begin{definition}[线路规模类]
+  \label{def:circuit-size-class}
+  对布尔函数 $F:\bitsstar\to\bits$，记
+
+  \[
+    F_n:\bits^n\to\bits,
+    \qquad
+    F_n(x)=F(x).
+  \]
+
+  $\operatorname{SIZE}_n(s)$ 表示所有能由至多 $s$ 个 NAND 门计算的
+  $n$ 输入布尔函数。若存在常数 $C>0$ 和 $n_0$，使得对所有 $n\geq n_0$ 都有
+
+  \[
+    F_n\in\operatorname{SIZE}_n(C T(n)),
+  \]
+
+  则记 $F\in\operatorname{SIZE}(T(n))$。换言之，$\operatorname{SIZE}(T(n))$
+  使用渐近规模界 $O(T(n))$。这里允许不同输入长度使用不同电路，这些电路合称
+  一个\emph{线路族}（circuit family）。
+\end{definition}
+
+\begin{theorem}[从运行时间到线路规模]
+  \label{thm:time-to-circuit-size}
+  对每个良好函数 $T$，
+
+  \[
+    \operatorname{TIME}_{\mathrm{RAM}}(T(n))
+      \subseteq\operatorname{SIZE}(T(n)^3).
+  \]
+\end{theorem}
+
+\begin{proof}[证明思路]
+  固定程序和输入长度 $n$，把至多 $T(n)$ 行的计算按时间展开。每一层电路根据
+  上一时刻的程序位置、寄存器和已访问内存计算下一时刻的配置。用选择器实现随机
+  访问后，每层需要至多 $O(T(n)^2)$ 个门，共有 $T(n)$ 层，因此总规模至多为
+  $O(T(n)^3)$。
+\end{proof}
+
+\begin{definition}[多项式规模线路]
+  \label{def:p-poly}
+  定义
+
+  \[
+    \mathsf{P/poly}
+      =\bigcup_{c\geq 1}\operatorname{SIZE}(n^c).
+  \]
+
+  这是由多项式规模线路族计算的函数类。
+\end{definition}
+
+由 \cref{thm:time-to-circuit-size} 可知
+$\mathsf P\subseteq\mathsf{P/poly}$。这个模型是\emph{非一致的}
+（nonuniform）：它只要求每个长度存在一张小电路，并不要求存在一个算法统一生成
+这些电路。这个区别甚至允许 $\mathsf{P/poly}$ 包含不可计算函数。
+
+\begin{theorem}[$\mathsf{P/poly}$ 中的不可计算函数]
+  \label{thm:p-poly-uncomputable}
+  存在不可计算函数 $F:\bitsstar\to\bits$，满足
+  $F\in\mathsf{P/poly}$。因而
+
+  \[
+    \mathsf P\subsetneq\mathsf{P/poly}.
+  \]
+\end{theorem}
+
+\begin{proof}
+  对 $n\geq 1$，把 $n$ 的二进制表示写成 $1y$，并令 $s(n)=y$；也就是说，
+  $s$ 删除二进制表示的最高位；另约定 $s(0)=\eps$。映射
+  $s:\Nat\to\bitsstar$ 是满射。
+  定义\emph{一元停机函数}（unary halting function）
+
+  \[
+    \operatorname{UH}(x)
+      =\operatorname{HALT}_0\bigl(s(\card{x})\bigr).
+  \]
+
+  它不可计算。否则，给定任意 $y\in\bitsstar$，令 $n$ 的二进制表示为 $1y$，
+  构造 $0^n$ 后便有
+
+  \[
+    \operatorname{UH}(0^n)=\operatorname{HALT}_0(y),
+  \]
+
+  从而可以计算 $\operatorname{HALT}_0$，与
+  \cref{thm:halt-on-zero-uncomputable} 矛盾。
+
+  另一方面，固定输入长度 $n$ 后，$\operatorname{UH}(x)$ 的值只依赖于 $n$，
+  对所有 $x\in\bits^n$ 都是同一个常数。常数函数可由常数规模 NAND 电路计算，
+  所以 $\operatorname{UH}\in\operatorname{SIZE}(O(1))\subseteq\mathsf{P/poly}$。
+\end{proof}
