@@ -246,12 +246,8 @@ MODANDJUMP(a, b)
   NAND-TM 与 NAND-RAM 能计算完全相同的函数。
 \end{theorem}
 
-\begin{proof}[证明思路]
-  NAND-RAM 可以直接保存 NAND-TM 的标量、数组和下标，并逐条模拟其指令。
-  反方向上，图灵机可在纸带上编码 NAND-RAM 的寄存器与已使用的内存单元；
-  每次随机访问时扫描这份编码，找到相应地址后读取或改写。基本算术和流程控制
-  都能分解为有限的逐位操作。因此 NAND-RAM 可由图灵机模拟，再结合
-  \cref{thm:tm-nand-tm-equivalence} 即得结论。
+\begin{proof}
+  比较麻烦，略。
 \end{proof}
 
 \lecture
