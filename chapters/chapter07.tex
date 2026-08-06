@@ -182,14 +182,31 @@ $U(\langle m,x\rangle)$ 简写为 $U(m,x)$。
 \end{example}
 
 \begin{proof}
-  假设 $\operatorname{ZERO}$ 可计算。给定 $m,x$，构造机器 $N_{m,x}$：在任意
+  假设某台机器 $E$ 计算 $\operatorname{ZERO}$。给定 $m,x$，构造机器
+  $N_{m,x}$：在任意
   输入 $y$ 上，它先模拟 $M_m(x)$；若模拟停机，就输出 $0$。若 $m$ 非法，则令
-  $N_{m,x}$ 永远循环。因此
+  $N_{m,x}$ 永远循环。
+
+  \begin{pseudocode}{Machine $N_{m,x}$ (input $y$)}
+    \item Ignore $y$.
+    \item If $m$ is not a valid machine encoding, loop forever.
+    \item Simulate $M_m(x)$ until it halts.
+    \item Output $0$ and halt.
+  \end{pseudocode}
+
+  因此
 
   \[
     \operatorname{HALT}(m,x)
       =\operatorname{ZERO}(\langle N_{m,x}\rangle),
   \]
+
+  且停机问题的判定器可写成：
+
+  \begin{pseudocode}{Halting decider $H$ (input $\langle m,x\rangle$)}
+    \item Construct $N_{m,x}$ and its encoding $n\gets\langle N_{m,x}\rangle$.
+    \item Run $E(n)$ and output its result.
+  \end{pseudocode}
 
   这将使停机问题可计算，产生矛盾。
 \end{proof}
