@@ -1,0 +1,206 @@
+\chapter{随机化算法}
+\label{chap:randomized-algorithms}
+
+% Lecture 13 未收录在当前讲义中；此处直接对齐原课次编号。
+\setcounter{lecture}{13}
+\lecture
+\label{lec:randomized-algorithms}
+
+随机化算法在计算过程中使用独立的随机比特。它不要求每次运行都给出正确答案，
+而是要求在每个输入上都以足够大的概率正确，并且所有随机分支均在规定时间内
+停机。
+
+\section{随机图灵机与 \texorpdfstring{$\mathsf{BPP}$}{BPP}}
+
+\begin{definition}[随机图灵机]
+  \label{def:randomized-turing-machine}
+  \emph{随机图灵机}（randomized Turing machine, RAND-TM）是在 NAND-TM
+  上增加指令
+
+  \[
+    \texttt{b = RAND()},
+  \]
+
+  其中每次调用都独立地以相同概率返回 $0$ 或 $1$。等价地，机器在每一步可以
+  在两个后继配置中等概率选择一个，因此也称为\emph{概率图灵机}
+  （probabilistic Turing machine）。
+
+  固定机器使用的随机比特串 $r$ 后，计算完全确定，记其输出为 $P(x;r)$。
+\end{definition}
+
+\begin{definition}[$\mathsf{BPP}$]
+  \label{def:bpp}
+  对布尔函数 $F:\bitsstar\to\bits$，若存在随机图灵机 $P$ 和多项式 $q$，
+  使得对每个输入 $x$：
+
+  \begin{enumerate}[label=(\arabic*),leftmargin=3em]
+    \item $P$ 的每条随机计算分支都在 $q(\card{x})$ 步内停机；
+    \item $P$ 以至少 $2/3$ 的概率给出正确答案，即
+      \[
+        \Pr_r\bigl[P(x;r)=F(x)\bigr]\geq\frac23,
+      \]
+  \end{enumerate}
+
+  则称 $F\in\mathsf{BPP}$。所有满足上述条件的布尔函数构成复杂度类
+  $\mathsf{BPP}$（bounded-error probabilistic polynomial time）。
+\end{definition}
+
+常数 $2/3$ 并不特殊；任意严格大于 $1/2$ 的常数成功率都给出同一个复杂度类。
+这是下面成功概率放大引理的直接结果。
+
+\section{成功概率放大}
+
+\begin{lemma}[放大引理]
+  \label{lem:bpp-amplification}
+  设随机多项式时间机器 $P$ 计算 $F:\bitsstar\to\bits$，并且存在常数
+  $0\leq\delta<1/2$，使得对每个 $x$ 都有
+
+  \[
+    \Pr_r\bigl[P(x;r)=F(x)\bigr]\geq1-\delta.
+  \]
+
+  那么对任意取正整数值的多项式 $p$，都存在随机多项式时间机器 $Q$，满足
+
+  \[
+    \Pr_r\bigl[Q(x;r)=F(x)\bigr]
+      \geq 1-2^{-p(\card{x})}.
+  \]
+\end{lemma}
+
+\begin{proof}
+  记 $n=\card{x}$，并令
+
+  \[
+    k(n)=\left\lceil
+      \frac{p(n)}{-\log_2\!\bigl(4\delta(1-\delta)\bigr)}
+    \right\rceil.
+  \]
+
+  当 $\delta=0$ 时直接取 $Q=P$；以下设 $0<\delta<1/2$。构造 $Q$ 如下。
+
+  \begin{pseudocode}{Amplified machine $Q$ (input $x$)}
+    \item Run $P(x)$ independently $2k(\card{x})$ times.
+    \item Return the majority output; break ties arbitrarily.
+  \end{pseudocode}
+
+  若一次运行的实际错误率为 $e\leq\delta$，则 $Q$ 出错需要至少 $k(n)$ 次运行
+  出错。因此
+
+  \begin{align*}
+    \Pr[Q(x)\neq F(x)]
+      &\leq \sum_{i=k}^{2k}\binom{2k}{i}e^i(1-e)^{2k-i} \\
+      &\leq \bigl(e(1-e)\bigr)^k
+          \sum_{i=k}^{2k}\binom{2k}{i} \\
+      &\leq \bigl(4\delta(1-\delta)\bigr)^k
+       \leq 2^{-p(n)}.
+  \end{align*}
+
+  这里使用了 $e\leq\delta<1/2$，以及
+  $\sum_{i=k}^{2k}\binom{2k}{i}\leq2^{2k}$。重复次数仍为多项式，所以 $Q$
+  仍在多项式时间内运行。
+\end{proof}
+
+\begin{corollary}[固定随机串的刻画]
+  \label{cor:bpp-random-string-characterization}
+  $F\in\mathsf{BPP}$ 当且仅当存在确定性多项式时间算法 $G$ 和多项式 $q$，
+  使得对每个 $x\in\bitsstar$，
+
+  \[
+    \Pr_{r\sim\bits^{q(\card{x})}}
+      \bigl[G(x,r)=F(x)\bigr]\geq\frac23,
+  \]
+
+  其中 $r$ 在 $\bits^{q(\card{x})}$ 上均匀分布。
+\end{corollary}
+
+\begin{proof}
+  随机多项式时间机器只能读取多项式个随机比特；把这些比特预先写成 $r$，即可
+  用确定性算法模拟它。反之，随机生成 $r$ 后运行 $G(x,r)$，便得到随机多项式
+  时间算法。
+\end{proof}
+
+\begin{proposition}
+  \label{prop:p-subset-bpp-subset-exp}
+  \[
+    \mathsf P\subseteq\mathsf{BPP}\subseteq\mathsf{EXP}.
+  \]
+\end{proposition}
+
+\begin{proof}
+  确定性算法可以完全不使用随机比特，所以
+  $\mathsf P\subseteq\mathsf{BPP}$。
+
+  对 $F\in\mathsf{BPP}$，使用\cref{cor:bpp-random-string-characterization}中的
+  $G$ 和 $q$。给定长度为 $n$ 的 $x$，枚举全部 $2^{q(n)}$ 个随机串 $r$，
+  并输出 $G(x,r)$ 的多数值。因为正确率至少为 $2/3$，多数值就是 $F(x)$；
+  总运行时间为 $2^{\operatorname{poly}(n)}$，故 $F\in\mathsf{EXP}$。
+\end{proof}
+
+\section{随机性与非一致线路}
+
+\begin{corollary}
+  \label{cor:bpp-subset-p-poly}
+  \[
+    \mathsf{BPP}\subseteq\mathsf{P/poly}.
+  \]
+\end{corollary}
+
+\begin{proof}
+  设 $F\in\mathsf{BPP}$。由\cref{lem:bpp-amplification}，可取随机多项式时间
+  机器 $Q$，使每个长度为 $n$ 的输入的错误率至多 $2^{-(n+4)}$。把 $Q$
+  使用的多项式个随机比特统一写成 $r$，由并集界（union bound），
+
+  \begin{align*}
+    \Pr_r\bigl[\exists x\in\bits^n:\ Q(x;r)\neq F(x)\bigr]
+      &\leq \sum_{x\in\bits^n}
+        \Pr_r\bigl[Q(x;r)\neq F(x)\bigr] \\
+      &\leq 2^n\cdot2^{-(n+4)}
+       =\frac1{16}<1.
+  \end{align*}
+
+  因而对每个 $n$，都存在一个固定的 $r_n$，使 $Q(x;r_n)=F(x)$ 对所有
+  $x\in\bits^n$ 同时成立。把 $r_n$ 硬编码进 $Q$ 的计算线路，便得到计算
+  $F\vert_{\bits^n}$ 的多项式规模线路。因此 $F\in\mathsf{P/poly}$。
+\end{proof}
+
+\section{伪随机生成器}
+
+\begin{definition}[伪随机生成器]
+  \label{def:pseudorandom-generator}
+  设 $\ell<m$，函数
+
+  \[
+    G:\bits^\ell\to\bits^m
+  \]
+
+  称为一个 $(T,\varepsilon)$-\emph{伪随机生成器}
+  （pseudorandom generator, PRG），如果对每个至多含 $T$ 个门、具有 $m$
+  个输入的布尔线路 $C$，都有
+
+  \[
+    \left|
+      \Pr_{s\sim\bits^\ell}\bigl[C(G(s))=1\bigr]
+      -\Pr_{r\sim\bits^m}\bigl[C(r)=1\bigr]
+    \right|
+    \leq\varepsilon.
+  \]
+
+  这里 $s$ 称为\emph{种子}（seed）；两个概率中的 $s$ 和 $r$ 都服从各自集合
+  上的均匀分布。
+\end{definition}
+
+也就是说，规模不超过 $T$ 的线路无法以超过 $\varepsilon$ 的优势区分
+$G(s)$ 与真正均匀的 $m$ 比特串。典型的强参数目标是
+$m=2^\ell$ 和 $\varepsilon=2^{-\ell}$；实际强度还必须连同可抵抗的线路规模
+$T$ 一起讨论。
+
+\begin{lemma}
+  \label{lem:p-equals-np-implies-bpp-equals-p}
+  如果 $\mathsf P=\mathsf{NP}$，那么
+
+  \[
+    \mathsf{BPP}=\mathsf P.
+  \]
+\end{lemma}
+
+\emph{证明将在后文给出。}
