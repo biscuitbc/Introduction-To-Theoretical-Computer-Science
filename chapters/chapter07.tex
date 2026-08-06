@@ -142,12 +142,25 @@ $U(\langle m,x\rangle)$ 简写为 $U(m,x)$。
   给定 $m,x$，可以有效构造图灵机 $N_{m,x}$：它忽略自己的输入，若 $m$ 合法
   就模拟 $M_m(x)$，否则永远循环。于是
 
+  \begin{pseudocode}{Machine $N_{m,x}$ (input $y$)}
+    \item Ignore $y$.
+    \item If $m$ is not a valid machine encoding, loop forever.
+    \item Otherwise, simulate $M_m(x)$.
+  \end{pseudocode}
+
   \[
     \operatorname{HALT}(m,x)
       =\operatorname{HALT}_0(\langle N_{m,x}\rangle).
   \]
 
-  若 $\operatorname{HALT}_0$ 可计算，等式右侧便给出了停机问题的算法，与
+  若某台机器 $Z$ 计算 $\operatorname{HALT}_0$，等式右侧的算法可写成：
+
+  \begin{pseudocode}{Halting decider $H$ (input $\langle m,x\rangle$)}
+    \item Construct $N_{m,x}$ and its encoding $n\gets\langle N_{m,x}\rangle$.
+    \item Run $Z(n)$ and output its result.
+  \end{pseudocode}
+
+  这便给出了停机问题的算法，与
   \cref{thm:halting-problem-uncomputable} 矛盾。
 \end{proof}
 
