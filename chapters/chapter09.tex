@@ -1,0 +1,306 @@
+\chapter{多项式运行时间}
+\label{chap:polynomial-running-time}
+
+\lecture
+\label{lec:polynomial-running-time}
+
+本章研究多项式时间归约和多项式时间验证，并由此定义复杂度类 $\mathsf{NP}$。
+以下判定问题都视为从 $\bitsstar$ 到 $\bits$ 的布尔函数；非法实例的函数值约定
+为 $0$。
+
+\section{三个判定问题}
+
+\begin{definition}[3SAT]
+  \label{def:3sat}
+  一个\emph{文字}（literal）是布尔变量 $x_i$ 或其否定 $\lnot x_i$；三个文字
+  的析取称为一个\emph{子句}（clause）。若公式是若干个三文字子句的合取，则称
+  它为\emph{三合取范式}（3-conjunctive normal form, 3CNF）。
+
+  3SAT 问题询问：给定一个 3CNF 公式 $\varphi$，是否存在对其变量的布尔赋值，
+  使 $\varphi$ 为真？存在这种赋值时，称 $\varphi$ 是\emph{可满足的}
+  （satisfiable）。
+\end{definition}
+
+例如，
+
+\[
+  \varphi=
+  (x_0\lor\lnot x_1\lor x_2)
+  \land(x_1\lor x_2\lor\lnot x_3)
+  \land(\lnot x_0\lor\lnot x_2\lor x_3)
+\]
+
+是一个含变量 $x_0,x_1,x_2,x_3$ 的 3CNF 公式。
+
+\begin{definition}[0/1 整数方程]
+  \label{def:zero-one-equations}
+  \emph{0/1 整数方程问题}（0/1 integer equations, 01EQ）的输入是
+  $A\in\Nat^{m\times n}$ 和 $b\in\Nat^m$。它询问是否存在
+  $x\in\bits^n$，使得
+
+  \[
+    Ax=b.
+  \]
+\end{definition}
+
+例如，方程组
+
+\[
+  x_0+x_1+x_2=0,
+  \qquad
+  x_0+x_1=1,
+  \qquad
+  x_1+x_2=2,
+  \qquad
+  x_i\in\bits
+\]
+
+没有解：第一个方程迫使三个变量全为 $0$，与后两个方程矛盾。
+
+\begin{definition}[子集和]
+  \label{def:subset-sum}
+  \emph{子集和问题}（Subset Sum）的输入是目标值 $t$，以及一列用二进制
+  编码的非负整数 $a_1,\ldots,a_n$。它询问是否存在
+  $I\subseteq\{1,\ldots,n\}$，使得
+
+  \[
+    \sum_{i\in I}a_i=t.
+  \]
+
+  允许输入中出现 $0$ 不改变问题，因为所有值为 $0$ 的项都可以直接删除。
+\end{definition}
+
+\section{多项式时间归约}
+
+\begin{definition}[多项式时间归约]
+  \label{def:polynomial-time-reduction}
+  对布尔函数 $F,G:\bitsstar\to\bits$，如果存在一个多项式时间可计算函数
+  $R:\bitsstar\to\bitsstar$，使得对每个 $x\in\bitsstar$ 都有
+
+  \[
+    F(x)=G(R(x)),
+  \]
+
+  则称 $F$ 可以\emph{多项式时间多对一归约}
+  （polynomial-time many-one reduction）到 $G$，记作
+  $F\leq_{\mathrm p}G$。
+\end{definition}
+
+归约把 $F$ 的实例变成 $G$ 的实例，并保持答案不变。因此 $G$ 的算法也会给出
+$F$ 的算法。
+
+\begin{proposition}
+  \label{prop:reduction-preserves-p}
+  若 $F\leq_{\mathrm p}G$ 且 $G\in\mathsf P$，则 $F\in\mathsf P$。
+\end{proposition}
+
+\begin{proof}
+  给定 $x$，先计算 $R(x)$，再运行 $G$ 的多项式时间算法并输出 $G(R(x))$。
+  因为多项式时间程序的输出长度不超过其运行时间，$\card{R(x)}$ 也由
+  $\operatorname{poly}(\card{x})$ 控制。因此总运行时间为
+
+  \[
+    \operatorname{poly}(\card{x})
+      +\operatorname{poly}(\card{R(x)})
+    =\operatorname{poly}(\card{x}).
+  \]
+\end{proof}
+
+\begin{corollary}[归约的传递性]
+  \label{cor:reduction-transitive}
+  若 $F\leq_{\mathrm p}G$ 且 $G\leq_{\mathrm p}H$，则
+  $F\leq_{\mathrm p}H$。
+\end{corollary}
+
+\begin{proof}
+  复合两个归约即可；两个多项式的复合仍是多项式。
+\end{proof}
+
+\subsection{归约的例子}
+
+\begin{proposition}
+  \label{prop:3sat-reduces-zero-one-equations}
+  $\operatorname{3SAT}\leq_{\mathrm p}\operatorname{01EQ}$。
+\end{proposition}
+
+\begin{proof}
+  对 3SAT 中的每个变量 $x_i$，引入两个 0/1 未知数 $u_i,\bar u_i$，分别表示
+  $x_i$ 与 $\lnot x_i$ 的真值，并加入
+
+  \[
+    u_i+\bar u_i=1.
+  \]
+
+  考虑一个子句 $\ell_1\lor\ell_2\lor\ell_3$。用 $z_j$ 表示文字
+  $\ell_j$ 对应的 $u_i$ 或 $\bar u_i$，再引入两个新的 0/1 未知数
+  $y_1,y_2$，加入方程
+
+  \[
+    z_1+z_2+z_3+y_1+y_2=3.
+  \]
+
+  当且仅当 $z_1+z_2+z_3\geq1$ 时，才能选择 $y_1,y_2\in\bits$ 使该式成立，
+  因而这个方程恰好表达原子句为真。每个变量增加一个方程，每个子句增加一个
+  方程和两个未知数，所以变换可在多项式时间内完成，并保持可满足性。
+\end{proof}
+
+\begin{proposition}
+  \label{prop:zero-one-equations-reduces-subset-sum}
+  $\operatorname{01EQ}\leq_{\mathrm p}\operatorname{SUBSET\text{-}SUM}$。
+\end{proposition}
+
+\begin{proof}
+  给定 $A\in\Nat^{m\times n}$ 与 $b\in\Nat^m$，记 $A_j$ 为 $A$ 的第 $j$
+  列。选择整数
+
+  \[
+    B>\max_{1\leq i\leq m}
+      \left\{b_i,\sum_{j=1}^n A_{ij}\right\},
+  \]
+
+  并把每一列和右端向量按 $B$ 进制打包为
+
+  \[
+    a_j=\sum_{i=1}^m A_{ij}B^{i-1},
+    \qquad
+    t=\sum_{i=1}^m b_iB^{i-1}.
+  \]
+
+  $B$ 的选择保证任意列子集逐位相加时都不会进位。因此对每个
+  $I\subseteq\{1,\ldots,n\}$，
+
+  \[
+    \sum_{j\in I}a_j=t
+    \quad\Longleftrightarrow\quad
+    \sum_{j\in I}A_j=b.
+  \]
+
+  令 $x_j=1$ 当且仅当 $j\in I$，右侧正是 $Ax=b$。这些整数的二进制长度为
+  $O(m\log B)$，所以整个变换是多项式时间的。
+\end{proof}
+
+结合命题~\ref{prop:3sat-reduces-zero-one-equations}、
+命题~\ref{prop:zero-one-equations-reduces-subset-sum}及
+推论~\ref{cor:reduction-transitive}，可得
+
+\[
+  \operatorname{3SAT}
+    \leq_{\mathrm p}\operatorname{SUBSET\text{-}SUM}.
+\]
+
+\section{多项式时间验证与 \texorpdfstring{$\mathsf{NP}$}{NP}}
+
+\begin{definition}[多项式时间可验证]
+  \label{def:polynomial-time-verifiable}
+  称布尔函数 $F:\bitsstar\to\bits$ 是\emph{多项式时间可验证的}
+  （polynomial-time verifiable），如果存在多项式 $p$ 和多项式时间图灵机
+  $V$，使得对每个 $x\in\bitsstar$，
+
+  \[
+    F(x)=1
+    \quad\Longleftrightarrow\quad
+    \exists t\in\bitsstar:\
+      \card{t}\leq p(\card{x})
+      \ \text{且}\ V(x,t)=1.
+  \]
+
+  字符串 $t$ 称为 $x$ 的\emph{证书}（certificate）或\emph{见证}
+  （witness），$V$ 称为\emph{验证器}（verifier）。
+\end{definition}
+
+3SAT 是多项式时间可验证的：证书只需给出所有变量的赋值。
+
+\begin{pseudocode}{Verifier $V_{\mathrm{3SAT}}$ (input $(\varphi,t)$)}
+  \item If $\varphi$ is not a valid 3CNF formula or $t$ is not an assignment
+    to all variables of $\varphi$, return $0$.
+  \item Evaluate every clause of $\varphi$ under $t$.
+  \item Return $1$ if all clauses are true, and return $0$ otherwise.
+\end{pseudocode}
+
+公式和赋值都只需扫描常数次，所以该验证器在输入长度的多项式时间内停机。
+
+\begin{definition}[$\mathsf{NP}$]
+  \label{def:np}
+  $\mathsf{NP}$ 是所有多项式时间可验证布尔函数的集合。
+\end{definition}
+
+\begin{theorem}
+  \label{thm:p-subset-np-subset-exp}
+  \[
+    \mathsf P\subseteq\mathsf{NP}\subseteq\mathsf{EXP}.
+  \]
+\end{theorem}
+
+\begin{proof}
+  若 $F\in\mathsf P$，令验证器忽略证书并直接运行 $F$ 的多项式时间算法，便有
+  $F\in\mathsf{NP}$。
+
+  再设 $F\in\mathsf{NP}$，其验证器为 $V$，证书长度至多为
+  $p(n)\leq n^c$。给定长度为 $n$ 的输入 $x$，枚举所有长度不超过 $p(n)$ 的
+  字符串 $t$，逐一运行 $V(x,t)$；找到接受证书便输出 $1$，全部拒绝则输出 $0$。
+  候选证书少于 $2^{p(n)+1}$ 个，每次验证只需多项式时间，故总时间为
+  $2^{\operatorname{poly}(n)}$，即 $F\in\mathsf{EXP}$。
+\end{proof}
+
+目前普遍猜测
+
+\[
+  \mathsf P\neq\mathsf{NP},
+  \qquad
+  \mathsf{NP}\neq\mathsf{EXP},
+\]
+
+但这两个等式是否成立都仍未知。上一章已经证明
+$\mathsf P\neq\mathsf{EXP}$，所以两个包含关系不可能同时取等号。
+
+\section{\texorpdfstring{$\mathsf{NP}$}{NP} 完全性}
+
+\begin{definition}[$\mathsf{NP}$ 困难与 $\mathsf{NP}$ 完全]
+  \label{def:np-hard-complete}
+  若对每个 $F\in\mathsf{NP}$ 都有 $F\leq_{\mathrm p}G$，则称 $G$ 是
+  \emph{$\mathsf{NP}$ 困难的}（$\mathsf{NP}$-hard）。如果进一步有
+  $G\in\mathsf{NP}$，则称 $G$ 是\emph{$\mathsf{NP}$ 完全的}
+  （$\mathsf{NP}$-complete）。
+\end{definition}
+
+\begin{corollary}
+  \label{cor:np-complete-in-p-implies-p-np}
+  如果某个 $\mathsf{NP}$ 完全函数属于 $\mathsf P$，则
+  $\mathsf P=\mathsf{NP}$。
+\end{corollary}
+
+\begin{proof}
+  设 $G$ 是这样的函数。对任意 $F\in\mathsf{NP}$，完全性给出
+  $F\leq_{\mathrm p}G$；再由 \cref{prop:reduction-preserves-p} 可得
+  $F\in\mathsf P$。因此 $\mathsf{NP}\subseteq\mathsf P$，结合
+  \cref{thm:p-subset-np-subset-exp} 即得结论。
+\end{proof}
+
+\begin{theorem}[Cook--Levin 定理]
+  \label{thm:cook-levin}
+  $\operatorname{3SAT}$ 是 $\mathsf{NP}$ 完全的。
+\end{theorem}
+
+\begin{proof}[证明思路]
+  前面的验证器已经说明 $\operatorname{3SAT}\in\mathsf{NP}$。对任意
+  $F\in\mathsf{NP}$，固定其多项式时间验证器 $V$。给定 $x$，用布尔变量编码
+  一个多项式长度的证书，以及 $V(x,t)$ 的整张多项式大小计算表；再用局部约束
+  表达初始配置、相邻配置之间的合法转移和最终接受。所得公式可借助辅助变量在
+  多项式规模内转成 3CNF，并且它可满足当且仅当存在使 $V(x,t)=1$ 的证书。
+  因此 $F\leq_{\mathrm p}\operatorname{3SAT}$。
+\end{proof}
+
+\begin{corollary}
+  \label{cor:3sat-in-p-iff-p-np}
+  \[
+    \operatorname{3SAT}\in\mathsf P
+    \quad\Longleftrightarrow\quad
+    \mathsf P=\mathsf{NP}.
+  \]
+\end{corollary}
+
+\begin{proof}
+  正向由定理~\ref{thm:cook-levin}和
+  推论~\ref{cor:np-complete-in-p-implies-p-np}得到；反向则由
+  $\operatorname{3SAT}\in\mathsf{NP}$ 立即得到。
+\end{proof}
