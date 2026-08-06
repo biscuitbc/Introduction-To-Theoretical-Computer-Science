@@ -59,10 +59,10 @@
   优秀的编码，来避免这个问题。
 \end{example}
 
-\begin{definition}[无前缀编码]
+\begin{definition}[前缀不冲突编码]
   \label{def:prefix-free}
-  编码 $E:A\to\Sigma^+$ 称为\emph{无前缀的}（prefix-free），如果对任意
-  不同的 $x,y\in A$，码字 $E(x)$ 都不是 $E(y)$ 的前缀。
+  编码 $E:A\to\Sigma^+$ 称为\emph{前缀不冲突的}（prefix-free），如果对
+  任意不同的 $x,y\in A$，码字 $E(x)$ 都不是 $E(y)$ 的前缀。
 \end{definition}
 
 记 $A^*$ 为由 $A$ 中元素组成的所有有限序列的集合，其空序列仍记为
@@ -80,7 +80,7 @@ $\eps$。对映射 $E:A\to\Sigma^*$，定义其逐项串联扩张
 
 \begin{lemma}
   \label{lem:prefix-extension-injective}
-  若 $E:A\to\Sigma^+$ 是无前缀编码，则由
+  若 $E:A\to\Sigma^+$ 是前缀不冲突编码，则由
   \cref{eq:concatenation-extension} 定义的
   $\overline E:A^*\to\Sigma^*$ 是单射。
 \end{lemma}
@@ -92,7 +92,7 @@ $\eps$。对映射 $E:A\to\Sigma^*$，定义其逐项串联扩张
     =\overline E(b_1,\ldots,b_q).
   \]
   码字非空，所以 $p=0\iff q=0$。若 $p,q>0$，则
-  $E(a_1)$ 与 $E(b_1)$ 中较短的码字一定是较长码字的前缀。由无前缀性可知
+  $E(a_1)$ 与 $E(b_1)$ 中较短的码字一定是较长码字的前缀。由前缀不冲突性可知
   \[
     E(a_1)=E(b_1)
     \implies a_1=b_1.
@@ -104,9 +104,9 @@ $\eps$。对映射 $E:A\to\Sigma^*$，定义其逐项串联扩张
   故 $\overline E$ 是单射。
 \end{proof}
 
-\begin{theorem}[编码的无前缀化]
+\begin{theorem}[构造前缀不冲突编码]
   \label{thm:prefix-free-construction}
-  若存在编码 $E:A\to\Sigma^*$，则存在无前缀编码
+  若存在编码 $E:A\to\Sigma^*$，则存在前缀不冲突编码
   $E_{\mathrm{pf}}:A\to\Sigma^+$，并且对每个 $a\in A$ 都有
   \[
     \card{E_{\mathrm{pf}}(a)}=2\card{E(a)}+2.
@@ -129,7 +129,7 @@ $\eps$。对映射 $E:A\to\Sigma^*$，定义其逐项串联扩张
     \implies E(a)=E(b)
     \implies a=b.
   \]
-  因此 $E_{\mathrm{pf}}$ 无前缀。
+  因此 $E_{\mathrm{pf}}$ 前缀不冲突。
 \end{proof}
 
 \begin{question}
@@ -163,7 +163,7 @@ $\eps$。对映射 $E:A\to\Sigma^*$，定义其逐项串联扩张
     =n+2\lfloor\log_2(n+1)\rfloor+3
     =n+O(\log(n+1)).
   \]
-  $L(n)$ 自定界；当 $n$ 相同时，$E'(a)$ 等长。因此该构造无前缀。
+  $L(n)$ 自定界；当 $n$ 相同时，$E'(a)$ 等长。因此该构造前缀不冲突。
 \end{proof}
 
 \begin{corollary}
@@ -173,7 +173,7 @@ $\eps$。对映射 $E:A\to\Sigma^*$，定义其逐项串联扩张
 \end{corollary}
 
 \begin{proof}
-  先用\cref{thm:prefix-free-construction}把 $E$ 无前缀化，再用
+  先用\cref{thm:prefix-free-construction}把 $E$ 改造成前缀不冲突编码，再用
   \cref{lem:prefix-extension-injective}逐项串联即可。
 \end{proof}
 
