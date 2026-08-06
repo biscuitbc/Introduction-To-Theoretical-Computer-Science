@@ -258,9 +258,13 @@ $U(\langle m,x\rangle)$ 简写为 $U(m,x)$。
 机器的\emph{语义性质}（semantic property）只取决于它所计算的函数，而不
 取决于状态名称、转移表写法等实现细节。
 
-\begin{definition}[语义且非平凡的性质]
+\begin{definition}[图灵机的性质；语义与非平凡]
   \label{def:semantic-nontrivial-property}
-  图灵机的性质 $P$ 称为\emph{语义的}，如果任意两台计算同一个偏函数
+  图灵机的一个\emph{性质} $P$ 为每台图灵机 $M$ 指定一个布尔值
+  $P(M)\in\bits$。其中 $P(M)=1$ 表示 $M$ 满足性质 $P$，$P(M)=0$ 表示
+  $M$ 不满足性质 $P$。
+
+  性质 $P$ 称为\emph{语义的}，如果任意两台计算同一个偏函数
   （partial function）的机器 $M,M'$ 都满足
 
   \[
