@@ -198,8 +198,24 @@ $10$ 这类具有不同长度的输入。
 为了便于书写，可以加入不会改变计算能力的\emph{语法糖}（syntactic sugar）。
 
 \begin{itemize}
-  \item \textbf{GOTO 与循环：}用若干标量编码当前行号，并用 NAND 指令更新
-    行号，就可以实现跳转；循环则由跳回较早的行得到。
+  \item \textbf{GOTO 与循环：}设程序共有 $t$ 个指令块
+    $B_1,\ldots,B_t$。用若干布尔标量编码当前行号 \texttt{line}，并把程序
+    理解为
+
+\begin{verbatim}
+if line == 1:
+    execute B_1
+elif line == 2:
+    execute B_2
+...
+elif line == t:
+    execute B_t
+MODANDJUMP(a, b)
+\end{verbatim}
+
+    每个条件判断和分支都能编译为 NAND 指令。顺序执行 $B_r$ 时令
+    $\texttt{line}\gets r+1$；执行 \texttt{GOTO(r)} 时则只需令
+    $\texttt{line}\gets r$。因此，跳回较早的行便得到循环。
   \item \textbf{多维数组：}通过一个可计算的配对函数
     $\langle\cdot,\cdot\rangle:\Nat^2\to\Nat$，可将
     $A[i,j]$ 存为一维数组元素 $A'[\langle i,j\rangle]$。更高维数组同理。
