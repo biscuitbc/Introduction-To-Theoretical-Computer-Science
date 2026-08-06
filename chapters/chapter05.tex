@@ -138,6 +138,37 @@
 
 \section{上下文无关文法}
 
+\begin{example}[非确定的产生式选择]
+令 $S,A$ 为辅助符号，并给出产生式
+
+\[
+  S\to 0S1,
+  \qquad
+  S\to A,
+  \qquad
+  A\to 0,
+  \qquad
+  A\to\eps.
+\]
+
+从 $S$ 开始，每一步选取一个辅助符号，并用某条左端匹配的产生式替换它。例如，
+
+\[
+  S\Rightarrow 0S1\Rightarrow 0A1
+  \Rightarrow
+  \begin{cases}
+    001, & A\to0,\\
+    01,  & A\to\eps.
+  \end{cases}
+\]
+
+同一个符号可以有多条产生式，所以下一步不必唯一；文法的推导可以是
+\emph{非确定的}。只要存在一条产生目标字符串的推导路径，就称该文法生成了这个
+字符串。
+\end{example}
+
+这个例子中的符号集、开始符号和产生式集合可以抽象为下面的定义。
+
 \begin{definition}[上下文无关文法]
   \label{def:cfg}
   二进制字母表上的一个\emph{上下文无关文法}
@@ -170,6 +201,7 @@
   \]
 
   记 $\Rightarrow_G^*$ 为 $\Rightarrow_G$ 的自反传递闭包。若
+  $x\Rightarrow_G^*y$，则称 $x$ \emph{推导出}（derive）$y$。特别地，若
   $S\Rightarrow_G^*w$，则称 $G$ \emph{生成} $w$；$G$ 生成的语言为
 
   \[
